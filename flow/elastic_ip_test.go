@@ -28,7 +28,7 @@ var testElasticIp = &ElasticIp{
 func TestElasticIpService_List(t *testing.T) {
 	setupMockServer(t)
 
-	serveMux.HandleFunc(path.Join("/v3/", organizationPath, "/compute/elastic-ips"), func(res http.ResponseWriter, req *http.Request) {
+	serveMux.HandleFunc(path.Join("/v4/compute/elastic-ips"), func(res http.ResponseWriter, req *http.Request) {
 		assertMethod(t, req, http.MethodGet)
 		assertPagination(t, req, PaginationOptions{NoFilter: 1})
 
@@ -59,7 +59,7 @@ func TestElasticIpService_List(t *testing.T) {
 func TestElasticIpService_Create(t *testing.T) {
 	setupMockServer(t)
 
-	serveMux.HandleFunc(path.Join("/v3/", organizationPath, "/compute/elastic-ips"), func(res http.ResponseWriter, req *http.Request) {
+	serveMux.HandleFunc(path.Join("/v4/compute/elastic-ips"), func(res http.ResponseWriter, req *http.Request) {
 		assertMethod(t, req, http.MethodPost)
 		assertPayload(t, req, &ElasticIpCreate{
 			LocationId: 1,
@@ -88,7 +88,7 @@ func TestElasticIpService_Create(t *testing.T) {
 func TestElasticIpService_Delete(t *testing.T) {
 	setupMockServer(t)
 
-	serveMux.HandleFunc(path.Join("/v3/", organizationPath, "/compute/elastic-ips/1"), func(res http.ResponseWriter, req *http.Request) {
+	serveMux.HandleFunc(path.Join("/v4/compute/elastic-ips/1"), func(res http.ResponseWriter, req *http.Request) {
 		assertMethod(t, req, http.MethodDelete)
 
 		res.Header().Set("Content-Type", "application/json")

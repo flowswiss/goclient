@@ -12,7 +12,7 @@ func TestKeyPairService_List(t *testing.T) {
 
 	options := PaginationOptions{NoFilter: 1}
 
-	serveMux.HandleFunc(path.Join("/v3/", organizationPath, "/compute/key-pairs"), func(res http.ResponseWriter, req *http.Request) {
+	serveMux.HandleFunc(path.Join("/v4/compute/key-pairs"), func(res http.ResponseWriter, req *http.Request) {
 		assertMethod(t, req, http.MethodGet)
 		assertPagination(t, req, options)
 
@@ -45,7 +45,7 @@ func TestKeyPairService_List(t *testing.T) {
 func TestKeyPairService_Create(t *testing.T) {
 	setupMockServer(t)
 
-	serveMux.HandleFunc(path.Join("/v3/", organizationPath, "/compute/key-pairs"), func(res http.ResponseWriter, req *http.Request) {
+	serveMux.HandleFunc(path.Join("/v4/compute/key-pairs"), func(res http.ResponseWriter, req *http.Request) {
 		assertMethod(t, req, http.MethodPost)
 		assertPayload(t, req, &KeyPairCreate{
 			Name:      "Sample Key Pair",
@@ -80,7 +80,7 @@ func TestKeyPairService_Create(t *testing.T) {
 func TestKeyPairService_Delete(t *testing.T) {
 	setupMockServer(t)
 
-	serveMux.HandleFunc(path.Join("/v3/", organizationPath, "/compute/key-pairs/1"), func(res http.ResponseWriter, req *http.Request) {
+	serveMux.HandleFunc(path.Join("/v4/compute/key-pairs/1"), func(res http.ResponseWriter, req *http.Request) {
 		assertMethod(t, req, http.MethodDelete)
 
 		res.Header().Set("Content-Type", "application/json")

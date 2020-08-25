@@ -32,22 +32,18 @@ type ElasticIpCreate struct {
 	LocationId Id `json:"location_id"`
 }
 
-func (e *ElasticIp) String() string {
-	return e.PublicIp
-}
-
 type elasticIpService struct {
 	client *Client
 }
 
 func (s *elasticIpService) List(ctx context.Context, options PaginationOptions) ([]*ElasticIp, *Response, error) {
-	p := "/v3/organizations/{organization}/compute/elastic-ips"
+	p := "/v4/compute/elastic-ips"
 	p, err := addOptions(p, options)
 	if err != nil {
 		return nil, nil, err
 	}
 
-	req, err := s.client.NewRequest(ctx, http.MethodGet, p, nil, 0)
+	req, err := s.client.NewRequest(ctx, http.MethodGet, p, nil)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -63,9 +59,9 @@ func (s *elasticIpService) List(ctx context.Context, options PaginationOptions) 
 }
 
 func (s *elasticIpService) Create(ctx context.Context, data *ElasticIpCreate) (*ElasticIp, *Response, error) {
-	p := "/v3/organizations/{organization}/compute/elastic-ips"
+	p := "/v4/compute/elastic-ips"
 
-	req, err := s.client.NewRequest(ctx, http.MethodPost, p, data, 0)
+	req, err := s.client.NewRequest(ctx, http.MethodPost, p, data)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -81,9 +77,9 @@ func (s *elasticIpService) Create(ctx context.Context, data *ElasticIpCreate) (*
 }
 
 func (s *elasticIpService) Delete(ctx context.Context, id Id) (*Response, error) {
-	p := fmt.Sprintf("/v3/organizations/{organization}/compute/elastic-ips/%d", id)
+	p := fmt.Sprintf("/v4/compute/elastic-ips/%d", id)
 
-	req, err := s.client.NewRequest(ctx, http.MethodDelete, p, nil, 0)
+	req, err := s.client.NewRequest(ctx, http.MethodDelete, p, nil)
 	if err != nil {
 		return nil, err
 	}

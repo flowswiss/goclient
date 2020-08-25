@@ -27,7 +27,7 @@ type Ordering struct {
 }
 
 func (o *Ordering) Id() (Id, error) {
-	regex, err := regexp.Compile("/organizations/\\d+/orders/(\\d+)$")
+	regex, err := regexp.Compile("/v4/orders/(\\d+)$")
 	if err != nil {
 		return 0, err
 	}
@@ -47,9 +47,9 @@ type orderService struct {
 }
 
 func (s *orderService) Get(ctx context.Context, id Id) (*Order, *Response, error) {
-	p := fmt.Sprintf("/v3/organizations/{organization}/orders/%d", id)
+	p := fmt.Sprintf("/v4/orders/%d", id)
 
-	req, err := s.client.NewRequest(ctx, http.MethodGet, p, nil, 0)
+	req, err := s.client.NewRequest(ctx, http.MethodGet, p, nil)
 	if err != nil {
 		return nil, nil, err
 	}

@@ -55,10 +55,6 @@ type Product struct {
 	DeploymentFees []*DeploymentFee      `json:"deployment_fees"`
 }
 
-func (p *Product) String() string {
-	return p.Name
-}
-
 func (p *Product) AvailableAt(location *Location) bool {
 	for _, availability := range p.Availability {
 		if availability.Location.Id == location.Id {
@@ -82,12 +78,12 @@ type productService struct {
 }
 
 func (s *productService) List(ctx context.Context, options PaginationOptions) ([]*Product, *Response, error) {
-	path, err := addOptions("/v3/products", options)
+	path, err := addOptions("/v4/products", options)
 	if err != nil {
 		return nil, nil, err
 	}
 
-	req, err := s.client.NewRequest(ctx, http.MethodGet, path, nil, FlagNoAuthentication)
+	req, err := s.client.NewRequest(ctx, http.MethodGet, path, nil)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -103,13 +99,13 @@ func (s *productService) List(ctx context.Context, options PaginationOptions) ([
 }
 
 func (s *productService) ListByType(ctx context.Context, options PaginationOptions, t string) ([]*Product, *Response, error) {
-	path := fmt.Sprintf("/v3/products/%s", t)
+	path := fmt.Sprintf("/v4/products/%s", t)
 	path, err := addOptions(path, options)
 	if err != nil {
 		return nil, nil, err
 	}
 
-	req, err := s.client.NewRequest(ctx, http.MethodGet, path, nil, FlagNoAuthentication)
+	req, err := s.client.NewRequest(ctx, http.MethodGet, path, nil)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -125,9 +121,9 @@ func (s *productService) ListByType(ctx context.Context, options PaginationOptio
 }
 
 func (s *productService) Get(ctx context.Context, id Id) (*Product, *Response, error) {
-	path := fmt.Sprintf("/v3/products/%d", id)
+	path := fmt.Sprintf("/v4/products/%d", id)
 
-	req, err := s.client.NewRequest(ctx, http.MethodGet, path, nil, FlagNoAuthentication)
+	req, err := s.client.NewRequest(ctx, http.MethodGet, path, nil)
 	if err != nil {
 		return nil, nil, err
 	}

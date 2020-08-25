@@ -10,7 +10,7 @@ import (
 func TestOrderService_Get(t *testing.T) {
 	setupMockServer(t)
 
-	serveMux.HandleFunc(path.Join("/v3/", organizationPath, "/orders/1"), func(res http.ResponseWriter, req *http.Request) {
+	serveMux.HandleFunc(path.Join("/v4/orders/1"), func(res http.ResponseWriter, req *http.Request) {
 		assertMethod(t, req, http.MethodGet)
 
 		response := `{"id":1,"status":{"id":1,"name":"created"},"product_instance":null}`

@@ -59,10 +59,6 @@ type ServerCreate struct {
 	CloudInit        string `json:"cloud_init,omitempty"`
 }
 
-func (s *Server) String() string {
-	return s.Name
-}
-
 func (s *Server) GetFirstPublicIp() string {
 	for _, network := range s.Networks {
 		for _, iface := range network.Interfaces {
@@ -79,13 +75,13 @@ type serverService struct {
 }
 
 func (s *serverService) List(ctx context.Context, options PaginationOptions) ([]*Server, *Response, error) {
-	p := "/v3/organizations/{organization}/compute/instances"
+	p := "/v4/compute/instances"
 	p, err := addOptions(p, options)
 	if err != nil {
 		return nil, nil, err
 	}
 
-	req, err := s.client.NewRequest(ctx, http.MethodGet, p, nil, 0)
+	req, err := s.client.NewRequest(ctx, http.MethodGet, p, nil)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -101,9 +97,9 @@ func (s *serverService) List(ctx context.Context, options PaginationOptions) ([]
 }
 
 func (s *serverService) Get(ctx context.Context, id Id) (*Server, *Response, error) {
-	p := fmt.Sprintf("/v3/organizations/{organization}/compute/instances/%d", id)
+	p := fmt.Sprintf("/v4/compute/instances/%d", id)
 
-	req, err := s.client.NewRequest(ctx, http.MethodGet, p, nil, 0)
+	req, err := s.client.NewRequest(ctx, http.MethodGet, p, nil)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -119,9 +115,9 @@ func (s *serverService) Get(ctx context.Context, id Id) (*Server, *Response, err
 }
 
 func (s *serverService) Create(ctx context.Context, data *ServerCreate) (*Ordering, *Response, error) {
-	p := "/v3/organizations/{organization}/compute/instances"
+	p := "/v4/compute/instances"
 
-	req, err := s.client.NewRequest(ctx, http.MethodPost, p, data, 0)
+	req, err := s.client.NewRequest(ctx, http.MethodPost, p, data)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -141,9 +137,9 @@ func (s *serverService) Update(ctx context.Context, id Id) (*Server, *Response, 
 }
 
 func (s *serverService) Delete(ctx context.Context, id Id) (*Response, error) {
-	p := fmt.Sprintf("/v3/organizations/{organization}/compute/instances/%d", id)
+	p := fmt.Sprintf("/v4/compute/instances/%d", id)
 
-	req, err := s.client.NewRequest(ctx, http.MethodDelete, p, nil, 0)
+	req, err := s.client.NewRequest(ctx, http.MethodDelete, p, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -159,13 +155,13 @@ func (s *serverService) Delete(ctx context.Context, id Id) (*Response, error) {
 }
 
 func (s *serverService) RunAction(ctx context.Context, id Id, command string) (*Server, *Response, error) {
-	p := fmt.Sprintf("/v3/organizations/{organization}/compute/instances/%d/action", id)
+	p := fmt.Sprintf("/v4/compute/instances/%d/action", id)
 
 	data := struct {
 		Action string `json:"action"`
 	}{command}
 
-	req, err := s.client.NewRequest(ctx, http.MethodPost, p, &data, 0)
+	req, err := s.client.NewRequest(ctx, http.MethodPost, p, &data)
 	if err != nil {
 		return nil, nil, err
 	}

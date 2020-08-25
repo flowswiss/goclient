@@ -11,7 +11,7 @@ func TestLocationService_List(t *testing.T) {
 
 	options := PaginationOptions{NoFilter: 1}
 
-	serveMux.HandleFunc("/v3/entities/locations", func(res http.ResponseWriter, req *http.Request) {
+	serveMux.HandleFunc("/v4/entities/locations", func(res http.ResponseWriter, req *http.Request) {
 		assertMethod(t, req, http.MethodGet)
 		assertPagination(t, req, options)
 
@@ -49,7 +49,7 @@ func TestLocationService_List(t *testing.T) {
 func TestLocationService_Get(t *testing.T) {
 	setupMockServer(t)
 
-	serveMux.HandleFunc("/v3/entities/locations/1", func(res http.ResponseWriter, req *http.Request) {
+	serveMux.HandleFunc("/v4/entities/locations/1", func(res http.ResponseWriter, req *http.Request) {
 		assertMethod(t, req, http.MethodGet)
 
 		response := `{"id":1,"name":"ALP1","key":"key-alp1","city":"Lucerne","available_modules":[{"id":2,"name":"Compute"},{"id":4,"name":"Object Storage"},{"id":5,"name":"Compute Networking"}]}`

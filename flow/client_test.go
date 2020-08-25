@@ -11,24 +11,17 @@ import (
 	"testing"
 )
 
-func TestNewClient(t *testing.T) {
-	base, err := url.Parse("https://api.flow.swiss/")
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	client := NewClient(base)
+func TestNewClientBase(t *testing.T) {
+	client := NewClient(nil)
 	if client == nil {
 		t.Fatal("client should not be null")
 	}
 
-	if client.Base.String() != base.String() {
+	if client.BaseURL.String() != "https://api.flow.swiss/" {
 		t.Error("base url is not matching")
 	}
 
-	client.AddUserAgent("test/1.2.3")
-
-	regex, err := regexp.Compile("^test/1\\.2\\.3 flow/\\d+\\.\\d+\\.\\d+$")
+	regex, err := regexp.Compile("^flow/\\d+\\.\\d+\\.\\d+$")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -38,20 +31,28 @@ func TestNewClient(t *testing.T) {
 	}
 }
 
-func TestClient_NewRequest(t *testing.T) {
-	base, err := url.Parse("https://api.flow.swiss/")
-	if err != nil {
-		t.Fatal(err)
+func TestNewClient(t *testing.T) {
+	client := NewClient(nil)
+	if client == nil {
+		t.Fatal("auth should not be null")
 	}
 
-	client := NewClient(base)
+	client.BaseURL, _ = url.Parse("https://api.cloudbit.ch/")
+
+	if client.BaseURL.String() != "https://api.cloudbit.ch/" {
+		t.Error("base url is not matching")
+	}
+}
+
+func TestClient_NewRequest(t *testing.T) {
+	client := NewClient(nil)
 
 	body := "{\"hello\": \"world\"}"
 
 	buf := &bytes.Buffer{}
 	buf.WriteString(body)
 
-	req, err := client.NewRequest(context.Background(), "GET", "/v3/test", buf, FlagNoAuthentication)
+	req, err := client.NewRequest(context.Background(), "GET", "/v4/test", buf)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -64,8 +65,8 @@ func TestClient_NewRequest(t *testing.T) {
 		t.Error("expected host to be api.flow.swiss got", req.Host)
 	}
 
-	if req.URL.String() != "https://api.flow.swiss/v3/test" {
-		t.Error("expected url", "https://api.flow.swiss/v3/test", "got", req.URL.String())
+	if req.URL.String() != "https://api.flow.swiss/v4/test" {
+		t.Error("expected url", "https://api.flow.swiss/v4/test", "got", req.URL.String())
 	}
 
 	if userAgent := req.Header.Get("User-Agent"); userAgent != client.UserAgent {
@@ -93,14 +94,14 @@ func TestClient_NewRequest(t *testing.T) {
 func TestClient_Do(t *testing.T) {
 	setupMockServer(t)
 
-	serveMux.HandleFunc("/v3/test", func(res http.ResponseWriter, req *http.Request) {
+	serveMux.HandleFunc("/v4/test", func(res http.ResponseWriter, req *http.Request) {
 		res.Header().Add("Content-Type", "application/json")
 		res.Header().Add("Link", fmt.Sprintf("%s, %s, %s, %s, %s",
-			"<http://localhost/v3/test?page=1&per_page=10>; rel=\"first\"",
-			"<http://localhost/v3/test?page=5&per_page=10>; rel=\"last\"",
-			"<http://localhost/v3/test?page=2&per_page=10>; rel=\"self\"",
-			"<http://localhost/v3/test?page=3&per_page=10>; rel=\"next\"",
-			"<http://localhost/v3/test?page=1&per_page=10>; rel=\"prev\"",
+			"<http://localhost/v4/test?page=1&per_page=10>; rel=\"first\"",
+			"<http://localhost/v4/test?page=5&per_page=10>; rel=\"last\"",
+			"<http://localhost/v4/test?page=2&per_page=10>; rel=\"self\"",
+			"<http://localhost/v4/test?page=3&per_page=10>; rel=\"next\"",
+			"<http://localhost/v4/test?page=1&per_page=10>; rel=\"prev\"",
 		))
 		res.Header().Add("X-Pagination-Count", "10")
 		res.Header().Add("X-Pagination-Limit", "10")
@@ -114,7 +115,7 @@ func TestClient_Do(t *testing.T) {
 		}
 	})
 
-	req, err := client.NewRequest(context.Background(), "GET", "/v3/test", nil, FlagNoAuthentication)
+	req, err := client.NewRequest(context.Background(), "GET", "/v4/test", nil)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -129,31 +130,31 @@ func TestClient_Do(t *testing.T) {
 	}
 
 	if val.Hello != "world" {
-		t.Error("client did not parse json response correctly")
+		t.Error("auth did not parse json response correctly")
 	}
 
 	if res.Count != 10 {
-		t.Error("client did not parse pagination correctly:", "expected 10 items got", res.Count)
+		t.Error("auth did not parse pagination correctly:", "expected 10 items got", res.Count)
 	}
 
 	if res.Limit != 10 {
-		t.Error("client did not parse pagination correctly:", "expected item limit of 10 got", res.Limit)
+		t.Error("auth did not parse pagination correctly:", "expected item limit of 10 got", res.Limit)
 	}
 
 	if res.TotalCount != 47 {
-		t.Error("client did not parse pagination correctly:", "expected total item count of 47 got", res.TotalCount)
+		t.Error("auth did not parse pagination correctly:", "expected total item count of 47 got", res.TotalCount)
 	}
 
 	if res.CurrentPage != 2 {
-		t.Error("client did not parse pagination correctly:", "expected current page 2 got", res.CurrentPage)
+		t.Error("auth did not parse pagination correctly:", "expected current page 2 got", res.CurrentPage)
 	}
 
 	if res.TotalPages != 5 {
-		t.Error("client did not parse pagination correctly:", "expected total page count of 5 got", res.TotalPages)
+		t.Error("auth did not parse pagination correctly:", "expected total page count of 5 got", res.TotalPages)
 	}
 
 	if res.Links.First == "" || res.Links.Last == "" || res.Links.Current == "" || res.Links.Prev == "" || res.Links.Next == "" {
-		t.Error("client did not parse pagination correctly:", "expected all pagination links got", res.Links)
+		t.Error("auth did not parse pagination correctly:", "expected all pagination links got", res.Links)
 	}
 }
 
@@ -161,7 +162,7 @@ func TestClient_DoError(t *testing.T) {
 	setupMockServer(t)
 
 	errorMessage := "Oops something went wrong"
-	serveMux.HandleFunc("/v3/test", func(res http.ResponseWriter, req *http.Request) {
+	serveMux.HandleFunc("/v4/test", func(res http.ResponseWriter, req *http.Request) {
 		res.Header().Add("X-Request-Id", "0e1a9a390a19ef145717170d381be279bd1afdc83623fd871cb9f020d6a74366")
 
 		body := fmt.Sprintf(`{"error": {"message": {"en": "%s"}}}`, errorMessage)
@@ -174,7 +175,7 @@ func TestClient_DoError(t *testing.T) {
 		}
 	})
 
-	req, err := client.NewRequest(context.Background(), "GET", "/v3/test", nil, FlagNoAuthentication)
+	req, err := client.NewRequest(context.Background(), "GET", "/v4/test", nil)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -203,7 +204,7 @@ func TestClient_DoContext(t *testing.T) {
 
 	ctx, cancel := context.WithCancel(context.Background())
 
-	req, err := client.NewRequest(ctx, "GET", "/v3/test", nil, FlagNoAuthentication)
+	req, err := client.NewRequest(ctx, "GET", "/v4/test", nil)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -225,39 +226,13 @@ func TestClient_DoContext(t *testing.T) {
 	}
 }
 
-func TestClient_Organization(t *testing.T) {
-	setupMockServer(t)
-
-	req, err := client.NewRequest(context.Background(),  http.MethodGet, "/v3/organizations/{organization}", nil, 0)
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	expectation := "/v3/organizations/1"
-	if req.URL.Path != expectation {
-		t.Errorf("expected path to be %q, got %q", expectation, req.URL.Path)
-	}
-
-	client.SelectedOrganization = 2
-
-	req, err = client.NewRequest(context.Background(),  http.MethodGet, "/v3/organizations/{organization}", nil, 0)
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	expectation = "/v3/organizations/2"
-	if req.URL.Path != expectation {
-		t.Errorf("expected path to be %q, got %q", expectation, req.URL.Path)
-	}
-}
-
 func Test_AddOptions(t *testing.T) {
-	base := "/v3/test?q=test"
+	base := "/v4/test?q=test"
 	options := PaginationOptions{
 		Page:    1,
 		PerPage: 5,
 	}
-	expectation := "/v3/test?page=1&per_page=5&q=test"
+	expectation := "/v4/test?page=1&per_page=5&q=test"
 
 	res, err := addOptions(base, options)
 	if err != nil {

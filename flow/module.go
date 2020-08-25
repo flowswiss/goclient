@@ -2,11 +2,13 @@ package flow
 
 import (
 	"context"
+	"fmt"
 	"net/http"
 )
 
 type ModuleService interface {
 	List(ctx context.Context, options PaginationOptions) ([]*Module, *Response, error)
+	Get(ctx context.Context, id Id) (*Module, *Response, error)
 }
 
 type Module struct {
@@ -31,12 +33,12 @@ type moduleService struct {
 }
 
 func (s *moduleService) List(ctx context.Context, options PaginationOptions) ([]*Module, *Response, error) {
-	p, err := addOptions("/v3/entities/modules", options)
+	p, err := addOptions("/v4/entities/modules", options)
 	if err != nil {
 		return nil, nil, err
 	}
 
-	req, err := s.client.NewRequest(ctx, http.MethodGet, p, nil, FlagNoAuthentication)
+	req, err := s.client.NewRequest(ctx, http.MethodGet, p, nil)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -44,6 +46,24 @@ func (s *moduleService) List(ctx context.Context, options PaginationOptions) ([]
 	var val []*Module
 
 	res, err := s.client.Do(req, &val)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	return val, res, nil
+}
+
+func (s *moduleService) Get(ctx context.Context, id Id) (*Module, *Response, error) {
+	p := fmt.Sprintf("/v4/entities/modules/%d", id)
+
+	req, err := s.client.NewRequest(ctx, http.MethodGet, p, nil)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	val := &Module{}
+
+	res, err := s.client.Do(req, val)
 	if err != nil {
 		return nil, nil, err
 	}

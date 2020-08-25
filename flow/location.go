@@ -18,21 +18,17 @@ type Location struct {
 	City string `json:"city"`
 }
 
-func (l *Location) String() string {
-	return l.Name
-}
-
 type locationService struct {
 	client *Client
 }
 
 func (s *locationService) List(ctx context.Context, options PaginationOptions) ([]*Location, *Response, error) {
-	path, err := addOptions("/v3/entities/locations", options)
+	path, err := addOptions("/v4/entities/locations", options)
 	if err != nil {
 		return nil, nil, err
 	}
 
-	req, err := s.client.NewRequest(ctx, http.MethodGet, path, nil, FlagNoAuthentication)
+	req, err := s.client.NewRequest(ctx, http.MethodGet, path, nil)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -48,9 +44,9 @@ func (s *locationService) List(ctx context.Context, options PaginationOptions) (
 }
 
 func (s *locationService) Get(ctx context.Context, id Id) (*Location, *Response, error) {
-	path := fmt.Sprintf("/v3/entities/locations/%d", id)
+	path := fmt.Sprintf("/v4/entities/locations/%d", id)
 
-	req, err := s.client.NewRequest(ctx, http.MethodGet, path, nil, FlagNoAuthentication)
+	req, err := s.client.NewRequest(ctx, http.MethodGet, path, nil)
 	if err != nil {
 		return nil, nil, err
 	}

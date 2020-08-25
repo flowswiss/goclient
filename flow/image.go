@@ -24,10 +24,6 @@ type Image struct {
 	AvailableLocations []Id       `json:"available_locations"`
 }
 
-func (i *Image) String() string {
-	return fmt.Sprintf("%s %s", i.OperatingSystem, i.Version)
-}
-
 func (i *Image) AvailableAt(location *Location) bool {
 	for _, available := range i.AvailableLocations {
 		if available == location.Id {
@@ -42,12 +38,12 @@ type imageService struct {
 }
 
 func (s *imageService) List(ctx context.Context, options PaginationOptions) ([]*Image, *Response, error) {
-	path, err := addOptions("/v3/entities/images", options)
+	path, err := addOptions("/v4/entities/compute/images", options)
 	if err != nil {
 		return nil, nil, err
 	}
 
-	req, err := s.client.NewRequest(ctx, http.MethodGet, path, nil, FlagNoAuthentication)
+	req, err := s.client.NewRequest(ctx, http.MethodGet, path, nil)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -63,9 +59,9 @@ func (s *imageService) List(ctx context.Context, options PaginationOptions) ([]*
 }
 
 func (s *imageService) Get(ctx context.Context, id Id) (*Image, *Response, error) {
-	path := fmt.Sprintf("/v3/entities/images/%d", id)
+	path := fmt.Sprintf("/v4/entities/compute/images/%d", id)
 
-	req, err := s.client.NewRequest(ctx, http.MethodGet, path, nil, FlagNoAuthentication)
+	req, err := s.client.NewRequest(ctx, http.MethodGet, path, nil)
 	if err != nil {
 		return nil, nil, err
 	}

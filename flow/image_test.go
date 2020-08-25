@@ -11,7 +11,7 @@ func TestImageService_List(t *testing.T) {
 
 	options := PaginationOptions{Page: 1, PerPage: 3}
 
-	serveMux.HandleFunc("/v3/entities/images", func(res http.ResponseWriter, req *http.Request) {
+	serveMux.HandleFunc("/v4/entities/compute/images", func(res http.ResponseWriter, req *http.Request) {
 		assertMethod(t, req, http.MethodGet)
 		assertPagination(t, req, options)
 
@@ -59,7 +59,7 @@ func TestImageService_List(t *testing.T) {
 func TestImageService_Get(t *testing.T) {
 	setupMockServer(t)
 
-	serveMux.HandleFunc("/v3/entities/images/1", func(res http.ResponseWriter, req *http.Request) {
+	serveMux.HandleFunc("/v4/entities/compute/images/1", func(res http.ResponseWriter, req *http.Request) {
 		assertMethod(t, req, http.MethodGet)
 
 		response := `{"id":1,"os":"Ubuntu","version":"18.04 LTS","key":"linux-ubuntu-18.04-lts","category":"Linux","type":"distribution","min_root_disk_size":10,"sorting":2,"required_licenses":[],"available_locations":[1,2]}`
