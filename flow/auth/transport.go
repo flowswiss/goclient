@@ -11,8 +11,6 @@ type Transport struct {
 }
 
 func (t *Transport) RoundTrip(request *http.Request) (*http.Response, error) {
-	fmt.Printf("%s %s\n", request.Method, request.URL.String());
-
 	token := t.Authenticator.GetToken()
 	request.Header.Add("Authorization", fmt.Sprintf("Bearer %s", token))
 
