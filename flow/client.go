@@ -4,11 +4,13 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
-	"github.com/flowswiss/goclient/flow/auth"
-	"github.com/google/go-querystring/query"
 	"io"
 	"net/http"
 	"net/url"
+
+	"github.com/google/go-querystring/query"
+
+	"github.com/flowswiss/goclient/flow/auth"
 )
 
 const (
@@ -18,13 +20,11 @@ const (
 	encoding  = "application/json"
 )
 
-type Id uint
-
 type Client struct {
 	BaseURL   *url.URL
 	UserAgent string
 
-	client *http.Client
+	HttpClient *http.Client
 
 	// General entities
 	Product  ProductService
@@ -38,6 +38,9 @@ type Client struct {
 	KeyPair          KeyPairService
 	Network          NetworkService
 	ElasticIp        ElasticIpService
+	Volume           VolumeService
+	VolumeAction     VolumeActionService
+	Snapshot         SnapshotService
 
 	// Other
 	Order OrderService
@@ -60,9 +63,9 @@ func NewClient(httpClient *http.Client) *Client {
 	baseUrl, _ := url.Parse(baseUrl)
 
 	client := &Client{
-		BaseURL:   baseUrl,
-		UserAgent: userAgent,
-		client:    httpClient,
+		BaseURL:    baseUrl,
+		UserAgent:  userAgent,
+		HttpClient: httpClient,
 	}
 
 	client.Product = &productService{client}
@@ -74,6 +77,9 @@ func NewClient(httpClient *http.Client) *Client {
 	client.KeyPair = &keyPairService{client}
 	client.Network = &networkService{client}
 	client.ElasticIp = &elasticIpService{client}
+	client.Volume = &volumeService{client}
+	client.VolumeAction = &volumeActionService{client}
+	client.Snapshot = &snapshotService{client}
 	client.Order = &orderService{client}
 
 	return client
@@ -110,7 +116,7 @@ func (c *Client) NewRequest(ctx context.Context, method string, path string, bod
 }
 
 func (c *Client) Do(req *http.Request, val interface{}) (*Response, error) {
-	res, err := c.client.Do(req)
+	res, err := c.HttpClient.Do(req)
 	if err != nil {
 		return nil, err
 	}
