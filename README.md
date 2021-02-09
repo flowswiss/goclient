@@ -17,13 +17,16 @@ import (
   "context"
   "fmt"
 
-  "github.com/flowswiss/goclient/flow"
+  "github.com/flowswiss/goclient"
+  "github.com/flowswiss/goclient/compute"
 )
 
 func main() {
-  client := flow.NewClientWithToken("your-application-token")
+  client := goclient.NewClient(goclient.WithToken("your-application-token"))
+  
+  service := compute.NewServerService(client)
 
-  servers, _, err := client.Server.List(context.Background(), flow.PaginationOptions{
+  res, err := service.List(context.Background(), goclient.Cursor{
     Page:    1,
     PerPage: 5,
   })
@@ -32,7 +35,7 @@ func main() {
     fmt.Println("error listing servers: ", err)
   }
 
-  for _, server := range servers {
+  for _, server := range res.Items {
     fmt.Println("found server with id ", server.Id)
   }
 }
