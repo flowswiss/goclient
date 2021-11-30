@@ -2,7 +2,6 @@ package flow
 
 import (
 	"context"
-	"errors"
 	"fmt"
 	"net/http"
 )
@@ -23,8 +22,8 @@ const (
 )
 
 type Status struct {
-	Id   Id                `json:"id"`
-	Name string            `json:"name"`
+	Id   Id     `json:"id"`
+	Name string `json:"name"`
 	Key  string `json:"key"`
 }
 
@@ -38,16 +37,8 @@ type Snapshot struct {
 	CreatedAt DateTime `json:"created_at"`
 }
 
-func (snapshot *Snapshot) IsAvailable() (bool, error) {
-	switch snapshot.Status.Key {
-	case SnapshotStatusKeyAvailable:
-		return true, nil
-	case SnapshotStatusKeyCreating:
-		return false, nil
-	case SnapshotStatusKeyError:
-		return false, errors.New(fmt.Sprintf("Snapshot with id %d has errored state", snapshot.Id))
-	}
-	return false, errors.New(fmt.Sprintf("Snapshot with id %d has unknown status '%s'", snapshot.Id, snapshot.Status.Key))
+func (snapshot *Snapshot) IsAvailable() bool {
+	return snapshot.Status.Key == SnapshotStatusKeyAvailable
 }
 
 type SnapshotCreate struct {
