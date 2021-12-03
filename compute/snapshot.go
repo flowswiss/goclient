@@ -11,9 +11,22 @@ type Snapshot struct {
 	Id        int            `json:"id"`
 	Name      string         `json:"name"`
 	Size      int            `json:"size"`
+	Status    SnapshotStatus `json:"status"`
 	Volume    Volume         `json:"volume"`
 	Product   common.Product `json:"product"`
 	CreatedAt common.Time    `json:"created_at"`
+}
+
+const (
+	SnapshotStatusAvailable = 1
+	SnapshotStatusCreating  = 2
+	SnapshotStatusError     = 3
+)
+
+type SnapshotStatus struct {
+	Id   int    `json:"id"`
+	Name string `json:"name"`
+	Key  string `json:"key"`
 }
 
 type SnapshotList struct {
@@ -40,6 +53,11 @@ func NewSnapshotService(client goclient.Client) SnapshotService {
 
 func (s SnapshotService) List(ctx context.Context, cursor goclient.Cursor) (list SnapshotList, err error) {
 	list.Pagination, err = s.client.List(ctx, getSnapshotsPath(), cursor, &list.Items)
+	return
+}
+
+func (s SnapshotService) Get(ctx context.Context, id int) (snapshot Snapshot, err error) {
+	err = s.client.Get(ctx, getSpecificSnapshotPath(id), &snapshot)
 	return
 }
 
