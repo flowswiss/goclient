@@ -49,6 +49,12 @@ type Product struct {
 	DeploymentFees []DeploymentFee       `json:"deployment_fees"`
 }
 
+type BriefProduct struct {
+	Id   int    `json:"id"`
+	Name string `json:"name"`
+	Type string `json:"type"`
+}
+
 type ProductList struct {
 	Items      []Product
 	Pagination goclient.Pagination

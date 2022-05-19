@@ -7,11 +7,7 @@ import (
 	"github.com/flowswiss/goclient/common"
 )
 
-type ElasticIpProduct struct {
-	Id   int    `json:"id"`
-	Name string `json:"name"`
-	Type string `json:"type"`
-}
+type ElasticIpProduct = common.BriefProduct
 
 type ElasticIpAttachment struct {
 	Id   int    `json:"id"`
