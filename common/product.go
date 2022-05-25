@@ -60,6 +60,11 @@ type ProductList struct {
 	Pagination goclient.Pagination
 }
 
+type ProductTypeList struct {
+	Items      []ProductType
+	Pagination goclient.Pagination
+}
+
 type ProductService struct {
 	client goclient.Client
 }
@@ -83,7 +88,15 @@ func (p ProductService) Get(ctx context.Context, id int) (product Product, err e
 	return
 }
 
-const productsSegment = "/v4/products"
+func (p ProductService) ListTypes(ctx context.Context, cursor goclient.Cursor) (list ProductTypeList, err error) {
+	list.Pagination, err = p.client.List(ctx, getProductTypesPath(), cursor, &list.Items)
+	return
+}
+
+const (
+	productsSegment     = "/v4/products"
+	productTypesSegment = "/v4/entities/product-types"
+)
 
 func getProductsPath() string {
 	return productsSegment
@@ -95,4 +108,8 @@ func getProductsByTypePath(productType string) string {
 
 func getSpecificProductPath(id int) string {
 	return goclient.Join(productsSegment, id)
+}
+
+func getProductTypesPath() string {
+	return productTypesSegment
 }
