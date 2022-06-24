@@ -43,16 +43,12 @@ func (n NetworkInterfaceService) UpdateSecurityGroup(ctx context.Context, id int
 	return
 }
 
-const (
-	networkInterfacesSegment              = "network-interface"
-	networkInterfaceSecuritySegment       = "security"
-	networkInterfaceSecurityGroupsSegment = "security-groups"
-)
+const networkInterfacesSegment = "network-interfaces"
 
 func getNetworkInterfacesPath(deviceID int) string {
-	return goclient.Join(devicesSegment, deviceID, networkInterfacesSegment)
+	return goclient.Join(getSpecificDevicePath(deviceID), networkInterfacesSegment)
 }
 
 func getSpecificNetworkInterfacePath(deviceID, networkInterfaceID int) string {
-	return goclient.Join(devicesSegment, deviceID, networkInterfacesSegment, networkInterfaceID)
+	return goclient.Join(getNetworkInterfacesPath(deviceID), networkInterfaceID)
 }
