@@ -52,10 +52,6 @@ type DeviceUpdate struct {
 	Name string `json:"name,omitempty"`
 }
 
-type DevicePerformAction struct {
-	Action string `json:"action"`
-}
-
 type DeviceService struct {
 	client goclient.Client
 }
@@ -79,11 +75,6 @@ func (d DeviceService) Create(ctx context.Context, body DeviceCreate) (order com
 	return
 }
 
-func (d DeviceService) Perform(ctx context.Context, id int, body DevicePerformAction) (device Device, err error) {
-	err = d.client.Create(ctx, getDeviceActionPath(id), body, &device)
-	return
-}
-
 func (d DeviceService) Update(ctx context.Context, id int, body DeviceUpdate) (device Device, err error) {
 	err = d.client.Update(ctx, getSpecificDevicePath(id), body, &device)
 	return
@@ -94,10 +85,7 @@ func (d DeviceService) Delete(ctx context.Context, id int) (err error) {
 	return
 }
 
-const (
-	devicesSegment      = "/v4/macbaremetal/devices"
-	deviceActionSegment = "actions"
-)
+const devicesSegment = "/v4/macbaremetal/devices"
 
 func getDevicesPath() string {
 	return devicesSegment
@@ -105,8 +93,4 @@ func getDevicesPath() string {
 
 func getSpecificDevicePath(id int) string {
 	return goclient.Join(devicesSegment, id)
-}
-
-func getDeviceActionPath(id int) string {
-	return goclient.Join(devicesSegment, id, deviceActionSegment)
 }
