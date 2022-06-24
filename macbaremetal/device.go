@@ -39,6 +39,10 @@ type DeviceList struct {
 	Pagination goclient.Pagination
 }
 
+type DeviceVNCConnection struct {
+	Ref string `json:"ref"`
+}
+
 type DeviceCreate struct {
 	Name            string `json:"name"`
 	LocationID      int    `json:"location_id"`
@@ -70,6 +74,11 @@ func (d DeviceService) Get(ctx context.Context, id int) (device Device, err erro
 	return
 }
 
+func (d DeviceService) GetVNC(ctx context.Context, id int) (vnc DeviceVNCConnection, err error) {
+	err = d.client.Get(ctx, getDeviceVNCPath(id), &vnc)
+	return
+}
+
 func (d DeviceService) Create(ctx context.Context, body DeviceCreate) (order common.Ordering, err error) {
 	err = d.client.Create(ctx, getDevicesPath(), body, &order)
 	return
@@ -85,7 +94,10 @@ func (d DeviceService) Delete(ctx context.Context, id int) (err error) {
 	return
 }
 
-const devicesSegment = "/v4/macbaremetal/devices"
+const (
+	devicesSegment   = "/v4/macbaremetal/devices"
+	deviceVNCSegment = "vnc"
+)
 
 func getDevicesPath() string {
 	return devicesSegment
@@ -93,4 +105,8 @@ func getDevicesPath() string {
 
 func getSpecificDevicePath(id int) string {
 	return goclient.Join(devicesSegment, id)
+}
+
+func getDeviceVNCPath(id int) string {
+	return goclient.Join(getSpecificDevicePath(id), deviceVNCSegment)
 }
