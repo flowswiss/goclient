@@ -2,6 +2,7 @@ package macbaremetal
 
 import (
 	"context"
+
 	"github.com/flowswiss/goclient"
 	"github.com/flowswiss/goclient/common"
 )
@@ -54,7 +55,39 @@ func (e ElasticIPService) Delete(ctx context.Context, id int) (err error) {
 	return
 }
 
-const elasticIPsSegment = "/v4/macbaremetal/elastic-ips"
+type ElasticIPAttach struct {
+	ElasticIPID        int `json:"elastic_ip_id"`
+	NetworkInterfaceID int `json:"network_interface_id"`
+}
+
+type AttachedElasticIPService struct {
+	client   goclient.Client
+	deviceID int
+}
+
+func NewAttachedElasticIPService(client goclient.Client, deviceID int) AttachedElasticIPService {
+	return AttachedElasticIPService{client: client, deviceID: deviceID}
+}
+
+func (a AttachedElasticIPService) List(ctx context.Context, cursor goclient.Cursor) (list ElasticIPList, err error) {
+	list.Pagination, err = a.client.List(ctx, getAttachedElasticIPsPath(a.deviceID), cursor, &list.Items)
+	return
+}
+
+func (a AttachedElasticIPService) Attach(ctx context.Context, body ElasticIPAttach) (elasticIP ElasticIP, err error) {
+	err = a.client.Create(ctx, getAttachedElasticIPsPath(a.deviceID), body, &elasticIP)
+	return
+}
+
+func (a AttachedElasticIPService) Detach(ctx context.Context, id int) (err error) {
+	err = a.client.Delete(ctx, getSpecificAttachedElasticIPPath(a.deviceID, id))
+	return
+}
+
+const (
+	elasticIPsSegment         = "/v4/macbaremetal/elastic-ips"
+	attachedElasticIPsSegment = "elastic-ips"
+)
 
 func getElasticIPsPath() string {
 	return elasticIPsSegment
@@ -62,4 +95,12 @@ func getElasticIPsPath() string {
 
 func getSpecificElasticIPPath(id int) string {
 	return goclient.Join(elasticIPsSegment, id)
+}
+
+func getAttachedElasticIPsPath(deviceID int) string {
+	return goclient.Join(getSpecificDevicePath(deviceID), attachedElasticIPsSegment)
+}
+
+func getSpecificAttachedElasticIPPath(deviceID, elasticIPID int) string {
+	return goclient.Join(getAttachedElasticIPsPath(deviceID), elasticIPID)
 }
