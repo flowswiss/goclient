@@ -15,7 +15,7 @@ const (
 )
 
 type LoadBalancerAlgorithm struct {
-	Id   int    `json:"id"`
+	ID   int    `json:"id"`
 	Name string `json:"name"`
 	Key  string `json:"key"`
 }
@@ -26,7 +26,7 @@ type LoadBalancerAlgorithmList struct {
 }
 
 type LoadBalancerProtocol struct {
-	Id   int    `json:"id"`
+	ID   int    `json:"id"`
 	Name string `json:"name"`
 	Key  string `json:"key"`
 }
@@ -37,7 +37,7 @@ type LoadBalancerProtocolList struct {
 }
 
 type LoadBalancerHealthCheckType struct {
-	Id   int    `json:"id"`
+	ID   int    `json:"id"`
 	Name string `json:"name"`
 	Key  string `json:"key"`
 }
@@ -48,7 +48,7 @@ type LoadBalancerHealthCheckTypeList struct {
 }
 
 type LoadBalancerStatus struct {
-	Id   int    `json:"id"`
+	ID   int    `json:"id"`
 	Name string `json:"name"`
 	Key  string `json:"key"`
 }

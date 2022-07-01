@@ -8,13 +8,13 @@ import (
 )
 
 type Router struct {
-	Id          int             `json:"id"`
+	ID          int             `json:"id"`
 	Name        string          `json:"name"`
 	Description string          `json:"description"`
 	Location    common.Location `json:"location"`
 	Public      bool            `json:"public"`
-	Snat        bool            `json:"snat"`
-	PublicIp    string          `json:"public_ip"`
+	SourceNAT   bool            `json:"snat"`
+	PublicIP    string          `json:"public_ip"`
 }
 
 type RouterList struct {
@@ -25,7 +25,7 @@ type RouterList struct {
 type RouterCreate struct {
 	Name        string `json:"name"`
 	Description string `json:"description"`
-	LocationId  int    `json:"location_id"`
+	LocationID  int    `json:"location_id"`
 	Public      bool   `json:"public"`
 }
 
@@ -43,12 +43,12 @@ func NewRouterService(client goclient.Client) RouterService {
 	return RouterService{client: client}
 }
 
-func (r RouterService) RouterInterfaces(routerId int) RouterInterfaceService {
-	return NewRouterInterfaceService(r.client, routerId)
+func (r RouterService) RouterInterfaces(routerID int) RouterInterfaceService {
+	return NewRouterInterfaceService(r.client, routerID)
 }
 
-func (r RouterService) Routes(routerId int) RouteService {
-	return NewRouteService(r.client, routerId)
+func (r RouterService) Routes(routerID int) RouteService {
+	return NewRouteService(r.client, routerID)
 }
 
 func (r RouterService) List(ctx context.Context, cursor goclient.Cursor) (list RouterList, err error) {
@@ -82,6 +82,6 @@ func getRoutersPath() string {
 	return routersSegment
 }
 
-func getSpecificRouterPath(routerId int) string {
-	return goclient.Join(routersSegment, routerId)
+func getSpecificRouterPath(routerID int) string {
+	return goclient.Join(routersSegment, routerID)
 }

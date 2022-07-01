@@ -7,7 +7,7 @@ import (
 )
 
 type Module struct {
-	Id        int        `json:"id"`
+	ID        int        `json:"id"`
 	Name      string     `json:"name"`
 	Parent    *Module    `json:"parent"`
 	Sorting   int        `json:"sorting"`
@@ -43,6 +43,6 @@ func getModulesPath() string {
 	return modulesSegment
 }
 
-func getSpecificModulePath(moduleId int) string {
-	return goclient.Join(modulesSegment, moduleId)
+func getSpecificModulePath(moduleID int) string {
+	return goclient.Join(modulesSegment, moduleID)
 }

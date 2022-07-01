@@ -18,11 +18,11 @@ const (
 
 var (
 	BriefLocation = common.Location{
-		Id:   1,
+		ID:   1,
 		Name: "ALP1",
 	}
 	Location = common.Location{
-		Id:      1,
+		ID:      1,
 		Name:    "ALP1",
 		Key:     "key-alp1",
 		City:    "Lucerne",
@@ -30,11 +30,11 @@ var (
 	}
 
 	BriefModule = common.Module{
-		Id:   2,
+		ID:   2,
 		Name: "Compute",
 	}
 	Module = common.Module{
-		Id:        2,
+		ID:        2,
 		Name:      "Compute",
 		Parent:    &BriefModule,
 		Sorting:   1,
@@ -42,9 +42,9 @@ var (
 	}
 
 	Order = common.Order{
-		Id: 1,
+		ID: 1,
 		Status: common.OrderStatus{
-			Id:   1,
+			ID:   1,
 			Name: "created",
 		},
 	}
@@ -53,23 +53,23 @@ var (
 	}
 
 	Product = common.Product{
-		Id:   13,
+		ID:   13,
 		Name: "macmini.2018.6-64-1024",
 		Type: common.ProductType{
-			Id:   5,
+			ID:   5,
 			Name: "Mac Bare Metal Device",
 			Key:  "bare-metal-device",
 		},
 		Visibility: "public",
 		UsageCycle: common.ProductUsageCycle{
-			Id:       2,
+			ID:       2,
 			Name:     "Hour",
 			Duration: 1,
 		},
 		Items: []common.ProductItem{
-			{Id: 12, Name: "Processor", Description: "Core (3.6 GHz i7)", Amount: 6},
-			{Id: 13, Name: "Memory", Description: "GB (2666 MHz DDR4)", Amount: 64},
-			{Id: 14, Name: "Storage", Description: "GB (PCIe-based SSD)", Amount: 1024},
+			{ID: 12, Name: "Processor", Description: "Core (3.6 GHz i7)", Amount: 6},
+			{ID: 13, Name: "Memory", Description: "GB (2666 MHz DDR4)", Amount: 64},
+			{ID: 14, Name: "Storage", Description: "GB (PCIe-based SSD)", Amount: 1024},
 		},
 		Price: 499,
 		Availability: []common.ProductAvailability{

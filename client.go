@@ -15,22 +15,22 @@ import (
 
 const (
 	version   = "2.0.0"
-	userAgent = "flow/" + version
-	baseUrl   = "https://api.flow.swiss/"
+	userAgent = "goclient/" + version
+	baseURL   = "https://api.flow.swiss/"
 	encoding  = "application/json"
 )
 
 var ErrWrongContentType = errors.New("wrong content type")
 
-type ApiError struct {
+type APIError struct {
 	response  *http.Response
 	message   string
-	requestId string
+	requestID string
 }
 
-func (a ApiError) Response() *http.Response { return a.response }
-func (a ApiError) Error() string            { return a.message }
-func (a ApiError) RequestID() string        { return a.requestId }
+func (a APIError) Response() *http.Response { return a.response }
+func (a APIError) Error() string            { return a.message }
+func (a APIError) RequestID() string        { return a.requestID }
 
 type Option func(*Client)
 
@@ -41,7 +41,7 @@ type Client struct {
 }
 
 func NewClient(options ...Option) Client {
-	base, _ := url.Parse(baseUrl)
+	base, _ := url.Parse(baseURL)
 
 	client := Client{
 		base:       base,
@@ -62,7 +62,7 @@ func WithBase(base string) Option {
 	}
 }
 
-func WithHttpClientOption(opt func(*http.Client)) Option {
+func WithHTTPClientOption(opt func(*http.Client)) Option {
 	return func(client *Client) {
 		opt(client.httpClient)
 	}
@@ -220,10 +220,10 @@ func (c *Client) Do(ctx context.Context, req *http.Request, val interface{}) (*h
 			return nil, fmt.Errorf("parse response body: %w", err)
 		}
 
-		return nil, ApiError{
+		return nil, APIError{
 			response:  res,
 			message:   apiError.Error.Message.En,
-			requestId: res.Header.Get("X-Request-Id"),
+			requestID: res.Header.Get("X-Request-Id"),
 		}
 	}
 
@@ -235,6 +235,10 @@ func (c *Client) Do(ctx context.Context, req *http.Request, val interface{}) (*h
 	} else if val != nil {
 		err = json.NewDecoder(res.Body).Decode(val)
 		if err != nil {
+			if errors.Is(err, io.EOF) {
+				return res, nil
+			}
+
 			return nil, fmt.Errorf("parse response body: %w", err)
 		}
 	}

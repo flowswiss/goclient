@@ -1,7 +1,7 @@
 package computetests
 
 import (
-	"github.com/flowswiss/goclient/common/tests"
+	commontests "github.com/flowswiss/goclient/common/tests"
 	"github.com/flowswiss/goclient/compute"
 )
 
@@ -12,7 +12,7 @@ const (
 
 var (
 	LoadBalancer = compute.LoadBalancer{
-		Id:       1,
+		ID:       1,
 		Name:     "lb-test",
 		Location: commontests.Location,
 		Product:  commontests.Product,
@@ -20,12 +20,12 @@ var (
 		Networks: []compute.LoadBalancerNetworkAttachment{},
 	}
 	LoadBalancerStatus = compute.LoadBalancerStatus{
-		Id:   1,
+		ID:   1,
 		Name: "Active",
 		Key:  "active",
 	}
 	LoadBalancerPool = compute.LoadBalancerPool{
-		Id:             0,
+		ID:             0,
 		Name:           "",
 		Status:         LoadBalancerStatus,
 		EntryProtocol:  compute.LoadBalancerProtocol{},
@@ -36,7 +36,7 @@ var (
 		HealthCheck:    compute.LoadBalancerHealthCheck{},
 	}
 	LoadBalancerMember = compute.LoadBalancerMember{
-		Id:      0,
+		ID:      0,
 		Name:    "",
 		Address: "",
 		Port:    0,

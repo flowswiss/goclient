@@ -8,7 +8,7 @@ import (
 )
 
 type Image struct {
-	Id                 int              `json:"id"`
+	ID                 int              `json:"id"`
 	OperatingSystem    string           `json:"os"`
 	Version            string           `json:"version"`
 	Key                string           `json:"key"`

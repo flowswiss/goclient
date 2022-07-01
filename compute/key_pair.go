@@ -7,7 +7,7 @@ import (
 )
 
 type KeyPair struct {
-	Id          int    `json:"id"`
+	ID          int    `json:"id"`
 	Name        string `json:"name"`
 	Fingerprint string `json:"fingerprint"`
 }

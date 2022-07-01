@@ -7,8 +7,8 @@ import (
 )
 
 type RouterInterface struct {
-	Id        int     `json:"id"`
-	PrivateIp string  `json:"private_ip"`
+	ID        int     `json:"id"`
+	PrivateIP string  `json:"private_ip"`
 	Network   Network `json:"network"`
 }
 
@@ -18,40 +18,40 @@ type RouterInterfaceList struct {
 }
 
 type RouterInterfaceCreate struct {
-	NetworkId int    `json:"network_id"`
-	PrivateIp string `json:"private_ip,omitempty"`
+	NetworkID int    `json:"network_id"`
+	PrivateIP string `json:"private_ip,omitempty"`
 }
 
 type RouterInterfaceService struct {
 	client   goclient.Client
-	routerId int
+	routerID int
 }
 
-func NewRouterInterfaceService(client goclient.Client, routerId int) RouterInterfaceService {
-	return RouterInterfaceService{client: client, routerId: routerId}
+func NewRouterInterfaceService(client goclient.Client, routerID int) RouterInterfaceService {
+	return RouterInterfaceService{client: client, routerID: routerID}
 }
 
 func (r RouterInterfaceService) List(ctx context.Context, cursor goclient.Cursor) (list RouterInterfaceList, err error) {
-	list.Pagination, err = r.client.List(ctx, getRouterInterfacesPath(r.routerId), cursor, &list.Items)
+	list.Pagination, err = r.client.List(ctx, getRouterInterfacesPath(r.routerID), cursor, &list.Items)
 	return
 }
 
 func (r RouterInterfaceService) Create(ctx context.Context, body RouterInterfaceCreate) (routerInterface RouterInterface, err error) {
-	err = r.client.Create(ctx, getRouterInterfacesPath(r.routerId), body, &routerInterface)
+	err = r.client.Create(ctx, getRouterInterfacesPath(r.routerID), body, &routerInterface)
 	return
 }
 
 func (r RouterInterfaceService) Delete(ctx context.Context, id int) (err error) {
-	err = r.client.Delete(ctx, getSpecificRouterInterfacePath(r.routerId, id))
+	err = r.client.Delete(ctx, getSpecificRouterInterfacePath(r.routerID, id))
 	return
 }
 
 const routerInterfacesSegment = "router-interfaces"
 
-func getRouterInterfacesPath(routerId int) string {
-	return goclient.Join(routersSegment, routerId, routerInterfacesSegment)
+func getRouterInterfacesPath(routerID int) string {
+	return goclient.Join(routersSegment, routerID, routerInterfacesSegment)
 }
 
-func getSpecificRouterInterfacePath(routerId, routerInterfaceId int) string {
-	return goclient.Join(routersSegment, routerId, routerInterfacesSegment, routerInterfaceId)
+func getSpecificRouterInterfacePath(routerID, routerInterfaceID int) string {
+	return goclient.Join(routersSegment, routerID, routerInterfacesSegment, routerInterfaceID)
 }

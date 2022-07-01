@@ -8,7 +8,7 @@ import (
 )
 
 type Snapshot struct {
-	Id        int            `json:"id"`
+	ID        int            `json:"id"`
 	Name      string         `json:"name"`
 	Size      int            `json:"size"`
 	Status    SnapshotStatus `json:"status"`
@@ -24,7 +24,7 @@ const (
 )
 
 type SnapshotStatus struct {
-	Id   int    `json:"id"`
+	ID   int    `json:"id"`
 	Name string `json:"name"`
 	Key  string `json:"key"`
 }
@@ -36,7 +36,7 @@ type SnapshotList struct {
 
 type SnapshotCreate struct {
 	Name     string `json:"name"`
-	VolumeId int    `json:"volume_id"`
+	VolumeID int    `json:"volume_id"`
 }
 
 type SnapshotUpdate struct {
@@ -82,6 +82,6 @@ func getSnapshotsPath() string {
 	return snapshotsSegment
 }
 
-func getSpecificSnapshotPath(snapshotId int) string {
-	return goclient.Join(snapshotsSegment, snapshotId)
+func getSpecificSnapshotPath(snapshotID int) string {
+	return goclient.Join(snapshotsSegment, snapshotID)
 }

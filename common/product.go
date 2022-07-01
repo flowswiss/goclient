@@ -7,19 +7,19 @@ import (
 )
 
 type ProductType struct {
-	Id   int    `json:"id"`
+	ID   int    `json:"id"`
 	Name string `json:"name"`
 	Key  string `json:"key"`
 }
 
 type ProductUsageCycle struct {
-	Id       int    `json:"id"`
+	ID       int    `json:"id"`
 	Name     string `json:"name"`
 	Duration int    `json:"duration"`
 }
 
 type ProductItem struct {
-	Id          int    `json:"id"`
+	ID          int    `json:"id"`
 	Name        string `json:"name"`
 	Description string `json:"description"`
 	Amount      int    `json:"amount"`
@@ -37,7 +37,7 @@ type DeploymentFee struct {
 }
 
 type Product struct {
-	Id             int                   `json:"id"`
+	ID             int                   `json:"id"`
 	Name           string                `json:"product_name"`
 	Type           ProductType           `json:"type"`
 	Visibility     string                `json:"visibility"`
@@ -50,7 +50,7 @@ type Product struct {
 }
 
 type BriefProduct struct {
-	Id   int    `json:"id"`
+	ID   int    `json:"id"`
 	Name string `json:"name"`
 	Type string `json:"type"`
 }

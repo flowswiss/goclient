@@ -15,13 +15,13 @@ const (
 )
 
 type VolumeStatus struct {
-	Id   int    `json:"id"`
+	ID   int    `json:"id"`
 	Name string `json:"name"`
 	Key  string `json:"key"`
 }
 
 type Volume struct {
-	Id           int             `json:"id"`
+	ID           int             `json:"id"`
 	Product      common.Product  `json:"product"`
 	Location     common.Location `json:"location"`
 	Status       VolumeStatus    `json:"status"`
@@ -43,9 +43,9 @@ type VolumeList struct {
 type VolumeCreate struct {
 	Name       string `json:"name"`
 	Size       int    `json:"size"`
-	LocationId int    `json:"location_id"`
-	SnapshotId int    `json:"snapshot_id,omitempty"`
-	InstanceId int    `json:"instance_id,omitempty"`
+	LocationID int    `json:"location_id"`
+	SnapshotID int    `json:"snapshot_id,omitempty"`
+	InstanceID int    `json:"instance_id,omitempty"`
 }
 
 type VolumeUpdate struct {
@@ -53,11 +53,11 @@ type VolumeUpdate struct {
 }
 
 type VolumeAttach struct {
-	InstanceId int `json:"instance_id"`
+	InstanceID int `json:"instance_id"`
 }
 
 type VolumeRevert struct {
-	SnapshotId int `json:"snapshot_id"`
+	SnapshotID int `json:"snapshot_id"`
 }
 
 type VolumeExpand struct {
@@ -102,8 +102,8 @@ func (v VolumeService) Attach(ctx context.Context, id int, body VolumeAttach) (v
 	return
 }
 
-func (v VolumeService) Detach(ctx context.Context, id int, instanceId int) (err error) {
-	err = v.client.Delete(ctx, getSpecificVolumeInstancePath(id, instanceId))
+func (v VolumeService) Detach(ctx context.Context, id int, instanceID int) (err error) {
+	err = v.client.Delete(ctx, getSpecificVolumeInstancePath(id, instanceID))
 	return
 }
 
@@ -128,22 +128,22 @@ func getVolumesPath() string {
 	return volumesSegment
 }
 
-func getSpecificVolumePath(volumeId int) string {
-	return goclient.Join(volumesSegment, volumeId)
+func getSpecificVolumePath(volumeID int) string {
+	return goclient.Join(volumesSegment, volumeID)
 }
 
-func getVolumeInstancesPath(volumeId int) string {
-	return goclient.Join(volumesSegment, volumeId, volumeInstancesSegment)
+func getVolumeInstancesPath(volumeID int) string {
+	return goclient.Join(volumesSegment, volumeID, volumeInstancesSegment)
 }
 
-func getSpecificVolumeInstancePath(volumeId, instanceId int) string {
-	return goclient.Join(volumesSegment, volumeId, volumeInstancesSegment, instanceId)
+func getSpecificVolumeInstancePath(volumeID, instanceID int) string {
+	return goclient.Join(volumesSegment, volumeID, volumeInstancesSegment, instanceID)
 }
 
-func getVolumeRevertPath(volumeId int) string {
-	return goclient.Join(volumesSegment, volumeId, volumeRevertSegment)
+func getVolumeRevertPath(volumeID int) string {
+	return goclient.Join(volumesSegment, volumeID, volumeRevertSegment)
 }
 
-func getVolumeUpgradePath(volumeId int) string {
-	return goclient.Join(volumesSegment, volumeId, volumeUpgradeSegment)
+func getVolumeUpgradePath(volumeID int) string {
+	return goclient.Join(volumesSegment, volumeID, volumeUpgradeSegment)
 }

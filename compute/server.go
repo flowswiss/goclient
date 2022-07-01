@@ -2,13 +2,16 @@ package compute
 
 import (
 	"context"
+	"fmt"
+	"net/url"
+	"strconv"
 
 	"github.com/flowswiss/goclient"
 	"github.com/flowswiss/goclient/common"
 )
 
 type Server struct {
-	Id       int                       `json:"id"`
+	ID       int                       `json:"id"`
 	Name     string                    `json:"name"`
 	Status   ServerStatus              `json:"status"`
 	Image    Image                     `json:"image"`
@@ -29,20 +32,20 @@ type ServerNetworkAttachment struct {
 }
 
 type AttachedNetworkInterface struct {
-	Id        int    `json:"id"`
-	PrivateIp string `json:"private_ip"`
-	PublicIp  string `json:"public_ip"`
+	ID        int    `json:"id"`
+	PrivateIP string `json:"private_ip"`
+	PublicIP  string `json:"public_ip"`
 }
 
 type ServerCreate struct {
 	Name             string `json:"name"`
-	LocationId       int    `json:"location_id"`
-	ImageId          int    `json:"image_id"`
-	ProductId        int    `json:"product_id"`
-	AttachExternalIp bool   `json:"attach_external_ip"`
-	NetworkId        int    `json:"network_id"`
-	PrivateIp        string `json:"private_ip,omitempty"`
-	KeyPairId        int    `json:"key_pair_id,omitempty"`
+	LocationID       int    `json:"location_id"`
+	ImageID          int    `json:"image_id"`
+	ProductID        int    `json:"product_id"`
+	AttachExternalIP bool   `json:"attach_external_ip"`
+	NetworkID        int    `json:"network_id"`
+	PrivateIP        string `json:"private_ip,omitempty"`
+	KeyPairID        int    `json:"key_pair_id,omitempty"`
 	Password         string `json:"password,omitempty"`
 	CloudInit        string `json:"cloud_init,omitempty"`
 }
@@ -56,7 +59,7 @@ type ServerPerform struct {
 }
 
 type ServerUpgrade struct {
-	ProductId int `json:"product_id"`
+	ProductID int `json:"product_id"`
 }
 
 type ServerService struct {
@@ -67,8 +70,8 @@ func NewServerService(client goclient.Client) ServerService {
 	return ServerService{client: client}
 }
 
-func (s ServerService) NetworkInterfaces(serverId int) NetworkInterfaceService {
-	return NewNetworkInterfaceService(s.client, serverId)
+func (s ServerService) NetworkInterfaces(serverID int) NetworkInterfaceService {
+	return NewNetworkInterfaceService(s.client, serverID)
 }
 
 func (s ServerService) List(ctx context.Context, cursor goclient.Cursor) (list ServerList, err error) {
@@ -101,8 +104,13 @@ func (s ServerService) Upgrade(ctx context.Context, id int, body ServerUpgrade) 
 	return
 }
 
-func (s ServerService) Delete(ctx context.Context, id int) (err error) {
-	err = s.client.Delete(ctx, getSpecificServerPath(id))
+func (s ServerService) Delete(ctx context.Context, id int, deleteElasticIP bool) (err error) {
+	query := url.Values{
+		"delete_elastic_ip": []string{strconv.FormatBool(deleteElasticIP)},
+	}
+
+	path := fmt.Sprint(getSpecificServerPath(id), "?", query.Encode())
+	err = s.client.Delete(ctx, path)
 	return
 }
 
@@ -116,14 +124,14 @@ func getServersPath() string {
 	return serversSegment
 }
 
-func getSpecificServerPath(serverId int) string {
-	return goclient.Join(serversSegment, serverId)
+func getSpecificServerPath(serverID int) string {
+	return goclient.Join(serversSegment, serverID)
 }
 
-func getServerActionPath(serverId int) string {
-	return goclient.Join(serversSegment, serverId, serverActionSegment)
+func getServerActionPath(serverID int) string {
+	return goclient.Join(serversSegment, serverID, serverActionSegment)
 }
 
-func getServerUpgradePath(serverId int) string {
-	return goclient.Join(serversSegment, serverId, serverUpgradeSegment)
+func getServerUpgradePath(serverID int) string {
+	return goclient.Join(serversSegment, serverID, serverUpgradeSegment)
 }

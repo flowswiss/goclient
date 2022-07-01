@@ -13,6 +13,8 @@ import (
 
 var ErrOrderFailed = errors.New("order failed")
 
+var orderIdentifierRegex = regexp.MustCompile(`/orders/(\d+)$`)
+
 const (
 	OrderStatusCreated = iota + 1
 	OrderStatusProcessing
@@ -21,7 +23,7 @@ const (
 )
 
 type OrderStatus struct {
-	Id   int    `json:"id"`
+	ID   int    `json:"id"`
 	Name string `json:"name"`
 }
 
@@ -30,8 +32,11 @@ type Ordering struct {
 }
 
 func (o Ordering) ExtractIdentifier() (int, error) {
-	regex := regexp.MustCompile("/orders/(\\d+)$")
-	data := regex.FindStringSubmatch(o.Ref)
+	data := orderIdentifierRegex.FindStringSubmatch(o.Ref)
+
+	if len(data) < 2 {
+		return 0, fmt.Errorf("invalid order identifier")
+	}
 
 	id, err := strconv.ParseInt(data[1], 10, 64)
 	if err != nil {
@@ -42,7 +47,7 @@ func (o Ordering) ExtractIdentifier() (int, error) {
 }
 
 type Order struct {
-	Id     int         `json:"id"`
+	ID     int         `json:"id"`
 	Status OrderStatus `json:"status"`
 }
 
@@ -71,11 +76,11 @@ func (o OrderService) WaitForCompletion(ctx context.Context, ordering Ordering) 
 			return err
 		}
 
-		if order.Status.Id == OrderStatusSucceeded {
+		if order.Status.ID == OrderStatusSucceeded {
 			return nil
 		}
 
-		if order.Status.Id == OrderStatusFailed {
+		if order.Status.ID == OrderStatusFailed {
 			return ErrOrderFailed
 		}
 
@@ -85,6 +90,6 @@ func (o OrderService) WaitForCompletion(ctx context.Context, ordering Ordering) 
 
 const ordersSegment = "/v4/orders"
 
-func getSpecificOrderPath(orderId int) string {
-	return goclient.Join(ordersSegment, orderId)
+func getSpecificOrderPath(orderID int) string {
+	return goclient.Join(ordersSegment, orderID)
 }

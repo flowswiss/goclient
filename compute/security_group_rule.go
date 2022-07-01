@@ -16,14 +16,14 @@ const (
 )
 
 type SecurityGroupRule struct {
-	Id                  int           `json:"id"`
+	ID                  int           `json:"id"`
 	Direction           string        `json:"direction"`
 	Protocol            int           `json:"protocol"`
 	FromPort            int           `json:"from_port"`
 	ToPort              int           `json:"to_port"`
-	IcmpType            int           `json:"icmp_type"`
-	IcmpCode            int           `json:"icmp_code"`
-	IpRange             string        `json:"ip_range"`
+	ICMPType            int           `json:"icmp_type"`
+	ICMPCode            int           `json:"icmp_code"`
+	IPRange             string        `json:"ip_range"`
 	RemoteSecurityGroup SecurityGroup `json:"remote_security_group"`
 }
 
@@ -37,47 +37,47 @@ type SecurityGroupRuleOptions struct {
 	Protocol              int    `json:"protocol"`
 	FromPort              int    `json:"from_port,omitempty"`
 	ToPort                int    `json:"to_port,omitempty"`
-	IcmpType              int    `json:"icmp_type,omitempty"`
-	IcmpCode              int    `json:"icmp_code,omitempty"`
-	IpRange               string `json:"ip_range,omitempty"`
-	RemoteSecurityGroupId int    `json:"remote_security_group_id,omitempty"`
+	ICMPType              int    `json:"icmp_type,omitempty"`
+	ICMPCode              int    `json:"icmp_code,omitempty"`
+	IPRange               string `json:"ip_range,omitempty"`
+	RemoteSecurityGroupID int    `json:"remote_security_group_id,omitempty"`
 }
 
 type SecurityGroupRuleService struct {
 	client          goclient.Client
-	securityGroupId int
+	securityGroupID int
 }
 
-func NewSecurityGroupRuleService(client goclient.Client, securityGroupId int) SecurityGroupRuleService {
-	return SecurityGroupRuleService{client: client, securityGroupId: securityGroupId}
+func NewSecurityGroupRuleService(client goclient.Client, securityGroupID int) SecurityGroupRuleService {
+	return SecurityGroupRuleService{client: client, securityGroupID: securityGroupID}
 }
 
 func (s SecurityGroupRuleService) List(ctx context.Context, cursor goclient.Cursor) (list SecurityGroupRuleList, err error) {
-	list.Pagination, err = s.client.List(ctx, getSecurityGroupRulesPath(s.securityGroupId), cursor, &list.Items)
+	list.Pagination, err = s.client.List(ctx, getSecurityGroupRulesPath(s.securityGroupID), cursor, &list.Items)
 	return
 }
 
 func (s SecurityGroupRuleService) Create(ctx context.Context, body SecurityGroupRuleOptions) (rule SecurityGroupRule, err error) {
-	err = s.client.Create(ctx, getSecurityGroupRulesPath(s.securityGroupId), body, &rule)
+	err = s.client.Create(ctx, getSecurityGroupRulesPath(s.securityGroupID), body, &rule)
 	return
 }
 
 func (s SecurityGroupRuleService) Update(ctx context.Context, id int, body SecurityGroupRuleOptions) (rule SecurityGroupRule, err error) {
-	err = s.client.Update(ctx, getSpecificSecurityGroupRulePath(s.securityGroupId, id), body, &rule)
+	err = s.client.Update(ctx, getSpecificSecurityGroupRulePath(s.securityGroupID, id), body, &rule)
 	return
 }
 
 func (s SecurityGroupRuleService) Delete(ctx context.Context, id int) (err error) {
-	err = s.client.Delete(ctx, getSpecificSecurityGroupRulePath(s.securityGroupId, id))
+	err = s.client.Delete(ctx, getSpecificSecurityGroupRulePath(s.securityGroupID, id))
 	return
 }
 
 const securityGroupRulesSegment = "rules"
 
-func getSecurityGroupRulesPath(securityGroupId int) string {
-	return goclient.Join(securityGroupRulesSegment, securityGroupId, securityGroupRulesSegment)
+func getSecurityGroupRulesPath(securityGroupID int) string {
+	return goclient.Join(securityGroupRulesSegment, securityGroupID, securityGroupRulesSegment)
 }
 
-func getSpecificSecurityGroupRulePath(securityGroupId, ruleId int) string {
-	return goclient.Join(securityGroupRulesSegment, securityGroupId, securityGroupRulesSegment, ruleId)
+func getSpecificSecurityGroupRulePath(securityGroupID, ruleID int) string {
+	return goclient.Join(securityGroupRulesSegment, securityGroupID, securityGroupRulesSegment, ruleID)
 }

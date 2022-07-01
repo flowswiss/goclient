@@ -7,7 +7,7 @@ import (
 )
 
 type Location struct {
-	Id      int      `json:"id"`
+	ID      int      `json:"id"`
 	Name    string   `json:"name"`
 	Key     string   `json:"key"`
 	City    string   `json:"city"`
@@ -43,6 +43,6 @@ func getLocationsPath() string {
 	return locationsSegment
 }
 
-func getSpecificLocationPath(locationId int) string {
-	return goclient.Join(locationsSegment, locationId)
+func getSpecificLocationPath(locationID int) string {
+	return goclient.Join(locationsSegment, locationID)
 }

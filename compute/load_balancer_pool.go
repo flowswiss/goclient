@@ -7,7 +7,7 @@ import (
 )
 
 type LoadBalancerPool struct {
-	Id             int                     `json:"id"`
+	ID             int                     `json:"id"`
 	Name           string                  `json:"name"`
 	Status         LoadBalancerStatus      `json:"status"`
 	EntryProtocol  LoadBalancerProtocol    `json:"entry_protocol"`
@@ -25,8 +25,8 @@ type LoadBalancerPoolList struct {
 
 type LoadBalancerHealthCheck struct {
 	Type               LoadBalancerHealthCheckType `json:"type"`
-	HttpMethod         string                      `json:"http_method"`
-	HttpPath           string                      `json:"http_path"`
+	HTTPMethod         string                      `json:"http_method"`
+	HTTPPath           string                      `json:"http_path"`
 	Interval           int                         `json:"interval"`
 	Timeout            int                         `json:"timeout"`
 	HealthyThreshold   int                         `json:"healthy_threshold"`
@@ -34,27 +34,27 @@ type LoadBalancerHealthCheck struct {
 }
 
 type LoadBalancerPoolCreate struct {
-	EntryProtocolId      int                            `json:"entry_protocol_id"`
-	TargetProtocolId     int                            `json:"target_protocol_id"`
-	CertificateId        int                            `json:"certificate_id,omitempty"`
+	EntryProtocolID      int                            `json:"entry_protocol_id"`
+	TargetProtocolID     int                            `json:"target_protocol_id"`
+	CertificateID        int                            `json:"certificate_id,omitempty"`
 	EntryPort            int                            `json:"entry_port"`
-	BalancingAlgorithmId int                            `json:"balancing_algorithm_id"`
+	BalancingAlgorithmID int                            `json:"balancing_algorithm_id"`
 	StickySession        bool                           `json:"sticky_session"`
 	Members              []LoadBalancerMemberCreate     `json:"members,omitempty"`
 	HealthCheck          LoadBalancerHealthCheckOptions `json:"health_check"`
 }
 
 type LoadBalancerPoolUpdate struct {
-	CertificateId        int                            `json:"certificate_id,omitempty"`
-	BalancingAlgorithmId int                            `json:"balancing_algorithm_id,omitempty"`
+	CertificateID        int                            `json:"certificate_id,omitempty"`
+	BalancingAlgorithmID int                            `json:"balancing_algorithm_id,omitempty"`
 	StickySession        bool                           `json:"sticky_session,omitempty"`
 	HealthCheck          LoadBalancerHealthCheckOptions `json:"health_check,omitempty"`
 }
 
 type LoadBalancerHealthCheckOptions struct {
-	TypeId             int    `json:"type_id"`
-	HttpMethod         string `json:"http_method,omitempty"`
-	HttpPath           string `json:"http_path,omitempty"`
+	TypeID             int    `json:"type_id"`
+	HTTPMethod         string `json:"http_method,omitempty"`
+	HTTPPath           string `json:"http_path,omitempty"`
 	Interval           int    `json:"interval,omitempty"`
 	Timeout            int    `json:"timeout,omitempty"`
 	HealthyThreshold   int    `json:"healthy_threshold,omitempty"`
@@ -64,48 +64,48 @@ type LoadBalancerHealthCheckOptions struct {
 type LoadBalancerPoolService struct {
 	client goclient.Client
 
-	loadBalancerId int
+	loadBalancerID int
 }
 
-func NewLoadBalancerPoolService(client goclient.Client, loadBalancerId int) LoadBalancerPoolService {
-	return LoadBalancerPoolService{client: client, loadBalancerId: loadBalancerId}
+func NewLoadBalancerPoolService(client goclient.Client, loadBalancerID int) LoadBalancerPoolService {
+	return LoadBalancerPoolService{client: client, loadBalancerID: loadBalancerID}
 }
 
-func (l LoadBalancerPoolService) Members(poolId int) LoadBalancerMemberService {
-	return NewLoadBalancerMemberService(l.client, l.loadBalancerId, poolId)
+func (l LoadBalancerPoolService) Members(poolID int) LoadBalancerMemberService {
+	return NewLoadBalancerMemberService(l.client, l.loadBalancerID, poolID)
 }
 
 func (l LoadBalancerPoolService) List(ctx context.Context, cursor goclient.Cursor) (list LoadBalancerPoolList, err error) {
-	list.Pagination, err = l.client.List(ctx, getLoadBalancerPoolsPath(l.loadBalancerId), cursor, &list.Items)
+	list.Pagination, err = l.client.List(ctx, getLoadBalancerPoolsPath(l.loadBalancerID), cursor, &list.Items)
 	return
 }
 
 func (l LoadBalancerPoolService) Get(ctx context.Context, id int) (pool LoadBalancerPool, err error) {
-	err = l.client.Get(ctx, getSpecificLoadBalancerPoolPath(l.loadBalancerId, id), &pool)
+	err = l.client.Get(ctx, getSpecificLoadBalancerPoolPath(l.loadBalancerID, id), &pool)
 	return
 }
 
 func (l LoadBalancerPoolService) Create(ctx context.Context, body LoadBalancerPoolCreate) (pool LoadBalancerPool, err error) {
-	err = l.client.Create(ctx, getLoadBalancerPoolsPath(l.loadBalancerId), body, &pool)
+	err = l.client.Create(ctx, getLoadBalancerPoolsPath(l.loadBalancerID), body, &pool)
 	return
 }
 
 func (l LoadBalancerPoolService) Update(ctx context.Context, id int, body LoadBalancerPoolUpdate) (pool LoadBalancerPool, err error) {
-	err = l.client.Create(ctx, getSpecificLoadBalancerPoolPath(l.loadBalancerId, id), body, &pool)
+	err = l.client.Create(ctx, getSpecificLoadBalancerPoolPath(l.loadBalancerID, id), body, &pool)
 	return
 }
 
 func (l LoadBalancerPoolService) Delete(ctx context.Context, id int) (err error) {
-	err = l.client.Delete(ctx, getSpecificLoadBalancerPoolPath(l.loadBalancerId, id))
+	err = l.client.Delete(ctx, getSpecificLoadBalancerPoolPath(l.loadBalancerID, id))
 	return
 }
 
 const loadBalancerPoolsSegment = "balancing-pools"
 
-func getLoadBalancerPoolsPath(loadBalancerId int) string {
-	return goclient.Join(loadBalancerSegment, loadBalancerId, loadBalancerPoolsSegment)
+func getLoadBalancerPoolsPath(loadBalancerID int) string {
+	return goclient.Join(loadBalancerSegment, loadBalancerID, loadBalancerPoolsSegment)
 }
 
-func getSpecificLoadBalancerPoolPath(loadBalancerId, poolId int) string {
-	return goclient.Join(loadBalancerSegment, loadBalancerId, loadBalancerPoolsSegment, poolId)
+func getSpecificLoadBalancerPoolPath(loadBalancerID, poolID int) string {
+	return goclient.Join(loadBalancerSegment, loadBalancerID, loadBalancerPoolsSegment, poolID)
 }

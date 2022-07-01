@@ -8,17 +8,17 @@ import (
 )
 
 type Network struct {
-	Id                  int             `json:"id"`
+	ID                  int             `json:"id"`
 	Name                string          `json:"name"`
 	Description         string          `json:"description"`
-	Cidr                string          `json:"cidr"`
+	CIDR                string          `json:"cidr"`
 	Location            common.Location `json:"location"`
 	DomainNameServers   []string        `json:"domain_name_servers"`
 	AllocationPoolStart string          `json:"allocation_pool_start"`
 	AllocationPoolEnd   string          `json:"allocation_pool_end"`
-	GatewayIp           string          `json:"gateway_ip"`
-	UsedIps             int             `json:"used_ips"`
-	TotalIps            int             `json:"total_ips"`
+	GatewayIP           string          `json:"gateway_ip"`
+	UsedIPs             int             `json:"used_ips"`
+	TotalIPs            int             `json:"total_ips"`
 }
 
 type NetworkList struct {
@@ -27,23 +27,23 @@ type NetworkList struct {
 }
 
 type NetworkCreate struct {
-	Name                string   `json:"name"`
-	Description         string   `json:"description"`
-	LocationId          int      `json:"location_id"`
-	DomainNameServer    []string `json:"domain_name_server"`
-	Cidr                string   `json:"cidr"`
-	AllocationPoolStart string   `json:"allocation_pool_start"`
-	AllocationPoolEnd   string   `json:"allocation_pool_end"`
-	GatewayIp           string   `json:"gateway_ip"`
+	Name                string   `json:"name,omitempty"`
+	Description         string   `json:"description,omitempty"`
+	LocationID          int      `json:"location_id,omitempty"`
+	DomainNameServers   []string `json:"domain_name_servers,omitempty"`
+	CIDR                string   `json:"cidr,omitempty"`
+	AllocationPoolStart string   `json:"allocation_pool_start,omitempty"`
+	AllocationPoolEnd   string   `json:"allocation_pool_end,omitempty"`
+	GatewayIP           string   `json:"gateway_ip,omitempty"`
 }
 
 type NetworkUpdate struct {
-	Name                string   `json:"name"`
-	Description         string   `json:"description"`
-	DomainNameServer    []string `json:"domain_name_server"`
-	AllocationPoolStart string   `json:"allocation_pool_start"`
-	AllocationPoolEnd   string   `json:"allocation_pool_end"`
-	GatewayIp           string   `json:"gateway_ip"`
+	Name                string   `json:"name,omitempty"`
+	Description         string   `json:"description,omitempty"`
+	DomainNameServers   []string `json:"domain_name_servers,omitempty"`
+	AllocationPoolStart string   `json:"allocation_pool_start,omitempty"`
+	AllocationPoolEnd   string   `json:"allocation_pool_end,omitempty"`
+	GatewayIP           string   `json:"gateway_ip,omitempty"`
 }
 
 type NetworkService struct {
@@ -85,6 +85,6 @@ func getNetworksPath() string {
 	return networksSegment
 }
 
-func getSpecificNetworkPath(networkId int) string {
-	return goclient.Join(networksSegment, networkId)
+func getSpecificNetworkPath(networkID int) string {
+	return goclient.Join(networksSegment, networkID)
 }

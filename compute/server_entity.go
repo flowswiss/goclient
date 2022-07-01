@@ -25,14 +25,14 @@ const (
 )
 
 type ServerAction struct {
-	Id      int    `json:"id"`
+	ID      int    `json:"id"`
 	Name    string `json:"name"`
 	Command string `json:"command"`
 	Sorting int    `json:"sorting"`
 }
 
 type ServerStatus struct {
-	Id      int            `json:"id"`
+	ID      int            `json:"id"`
 	Name    string         `json:"name"`
 	Key     string         `json:"key"`
 	Actions []ServerAction `json:"actions"`

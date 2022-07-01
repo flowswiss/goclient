@@ -8,7 +8,7 @@ import (
 )
 
 type SecurityGroup struct {
-	Id          int             `json:"id"`
+	ID          int             `json:"id"`
 	Name        string          `json:"name"`
 	Description string          `json:"description"`
 	Location    common.Location `json:"location"`
@@ -24,7 +24,7 @@ type SecurityGroupList struct {
 type SecurityGroupCreate struct {
 	Name        string `json:"name"`
 	Description string `json:"description"`
-	LocationId  int    `json:"location_id"`
+	LocationID  int    `json:"location_id"`
 }
 
 type SecurityGroupUpdate struct {
@@ -40,8 +40,8 @@ func NewSecurityGroupService(client goclient.Client) SecurityGroupService {
 	return SecurityGroupService{client: client}
 }
 
-func (s SecurityGroupService) Rules(securityGroupId int) SecurityGroupRuleService {
-	return NewSecurityGroupRuleService(s.client, securityGroupId)
+func (s SecurityGroupService) Rules(securityGroupID int) SecurityGroupRuleService {
+	return NewSecurityGroupRuleService(s.client, securityGroupID)
 }
 
 func (s SecurityGroupService) List(ctx context.Context, cursor goclient.Cursor) (list SecurityGroupList, err error) {
@@ -70,6 +70,6 @@ func getSecurityGroupsPath() string {
 	return securityGroupsSegment
 }
 
-func getSpecificSecurityGroupPath(securityGroupId int) string {
-	return goclient.Join(securityGroupsSegment, securityGroupId)
+func getSpecificSecurityGroupPath(securityGroupID int) string {
+	return goclient.Join(securityGroupsSegment, securityGroupID)
 }

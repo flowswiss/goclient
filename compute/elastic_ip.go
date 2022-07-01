@@ -7,62 +7,62 @@ import (
 	"github.com/flowswiss/goclient/common"
 )
 
-type ElasticIpProduct = common.BriefProduct
+type ElasticIPProduct = common.BriefProduct
 
-type ElasticIpAttachment struct {
-	Id   int    `json:"id"`
+type ElasticIPAttachment struct {
+	ID   int    `json:"id"`
 	Name string `json:"name"`
 	Type string `json:"type"`
 }
 
-type ElasticIp struct {
-	Id         int                 `json:"id"`
-	Product    ElasticIpProduct    `json:"product"`
+type ElasticIP struct {
+	ID         int                 `json:"id"`
+	Product    ElasticIPProduct    `json:"product"`
 	Location   common.Location     `json:"location"`
 	Price      float64             `json:"price"`
-	PublicIp   string              `json:"public_ip"`
-	PrivateIp  string              `json:"private_ip"`
-	Attachment ElasticIpAttachment `json:"attached_instance"`
+	PublicIP   string              `json:"public_ip"`
+	PrivateIP  string              `json:"private_ip"`
+	Attachment ElasticIPAttachment `json:"attached_instance"`
 }
 
-type ElasticIpList struct {
-	Items      []ElasticIp
+type ElasticIPList struct {
+	Items      []ElasticIP
 	Pagination goclient.Pagination
 }
 
-type ElasticIpCreate struct {
-	LocationId int `json:"location_id"`
+type ElasticIPCreate struct {
+	LocationID int `json:"location_id"`
 }
 
-type ElasticIpService struct {
+type ElasticIPService struct {
 	client goclient.Client
 }
 
-func NewElasticIpService(client goclient.Client) ElasticIpService {
-	return ElasticIpService{client: client}
+func NewElasticIPService(client goclient.Client) ElasticIPService {
+	return ElasticIPService{client: client}
 }
 
-func (e ElasticIpService) List(ctx context.Context, cursor goclient.Cursor) (list ElasticIpList, err error) {
-	list.Pagination, err = e.client.List(ctx, getElasticIpsPath(), cursor, &list.Items)
+func (e ElasticIPService) List(ctx context.Context, cursor goclient.Cursor) (list ElasticIPList, err error) {
+	list.Pagination, err = e.client.List(ctx, getElasticIPsPath(), cursor, &list.Items)
 	return
 }
 
-func (e ElasticIpService) Create(ctx context.Context, body ElasticIpCreate) (elasticIp ElasticIp, err error) {
-	err = e.client.Create(ctx, getElasticIpsPath(), body, &elasticIp)
+func (e ElasticIPService) Create(ctx context.Context, body ElasticIPCreate) (elasticIP ElasticIP, err error) {
+	err = e.client.Create(ctx, getElasticIPsPath(), body, &elasticIP)
 	return
 }
 
-func (e ElasticIpService) Delete(ctx context.Context, id int) (err error) {
-	err = e.client.Delete(ctx, getSpecificElasticIpPath(id))
+func (e ElasticIPService) Delete(ctx context.Context, id int) (err error) {
+	err = e.client.Delete(ctx, getSpecificElasticIPPath(id))
 	return
 }
 
-const elasticIpsSegment = "/v4/computes/elastic-ips"
+const elasticIPsSegment = "/v4/compute/elastic-ips"
 
-func getElasticIpsPath() string {
-	return elasticIpsSegment
+func getElasticIPsPath() string {
+	return elasticIPsSegment
 }
 
-func getSpecificElasticIpPath(elasticIpId int) string {
-	return goclient.Join(elasticIpsSegment, elasticIpId)
+func getSpecificElasticIPPath(elasticIPID int) string {
+	return goclient.Join(elasticIPsSegment, elasticIPID)
 }

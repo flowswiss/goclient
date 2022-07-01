@@ -7,7 +7,7 @@ import (
 )
 
 type Route struct {
-	Id          int    `json:"id"`
+	ID          int    `json:"id"`
 	Destination string `json:"destination"`
 	NextHop     string `json:"nexthop"`
 }
@@ -25,34 +25,34 @@ type RouteCreate struct {
 
 type RouteService struct {
 	client   goclient.Client
-	routerId int
+	routerID int
 }
 
-func NewRouteService(client goclient.Client, routerId int) RouteService {
-	return RouteService{client: client, routerId: routerId}
+func NewRouteService(client goclient.Client, routerID int) RouteService {
+	return RouteService{client: client, routerID: routerID}
 }
 
 func (r RouteService) List(ctx context.Context, cursor goclient.Cursor) (list RouteList, err error) {
-	list.Pagination, err = r.client.List(ctx, getRoutesPath(r.routerId), cursor, &list.Items)
+	list.Pagination, err = r.client.List(ctx, getRoutesPath(r.routerID), cursor, &list.Items)
 	return
 }
 
 func (r RouteService) Create(ctx context.Context, body RouteCreate) (route Route, err error) {
-	err = r.client.Create(ctx, getRoutesPath(r.routerId), body, &route)
+	err = r.client.Create(ctx, getRoutesPath(r.routerID), body, &route)
 	return
 }
 
 func (r RouteService) Delete(ctx context.Context, id int) (err error) {
-	err = r.client.Delete(ctx, getSpecificRoutePath(r.routerId, id))
+	err = r.client.Delete(ctx, getSpecificRoutePath(r.routerID, id))
 	return
 }
 
 const routesSegment = "routes"
 
-func getRoutesPath(routerId int) string {
-	return goclient.Join(routersSegment, routerId, routesSegment)
+func getRoutesPath(routerID int) string {
+	return goclient.Join(routersSegment, routerID, routesSegment)
 }
 
-func getSpecificRoutePath(routerId, routeId int) string {
-	return goclient.Join(routersSegment, routerId, routesSegment, routeId)
+func getSpecificRoutePath(routerID, routeID int) string {
+	return goclient.Join(routersSegment, routerID, routesSegment, routeID)
 }

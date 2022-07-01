@@ -40,10 +40,10 @@ func TestLoadBalancerService(t *testing.T) {
 	t.Run("create", func(t *testing.T) {
 		ordering, err := service.Create(ctx, compute.LoadBalancerCreate{
 			Name:             "lb-test",
-			LocationId:       1,
-			AttachExternalIp: true,
-			NetworkId:        0,
-			PrivateIp:        "172.0.0.1",
+			LocationID:       1,
+			AttachExternalIP: true,
+			NetworkID:        0,
+			PrivateIP:        "172.0.0.1",
 		})
 
 		if err != nil {

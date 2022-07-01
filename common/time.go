@@ -2,6 +2,7 @@ package common
 
 import (
 	"encoding/json"
+	"errors"
 	"time"
 )
 
@@ -29,7 +30,9 @@ func (t *Time) UnmarshalJSON(b []byte) error {
 	}
 
 	val, err := time.Parse(timeFormat, formatted)
-	if _, ok := err.(*time.ParseError); ok {
+
+	var parseErr *time.ParseError
+	if errors.As(err, &parseErr) {
 		val, err = time.Parse(legacyTimeFormat, formatted)
 	}
 

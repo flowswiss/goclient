@@ -9,7 +9,7 @@ import (
 )
 
 type LoadBalancer struct {
-	Id       int                             `json:"id"`
+	ID       int                             `json:"id"`
 	Name     string                          `json:"name"`
 	Location common.Location                 `json:"location"`
 	Product  common.Product                  `json:"product"`
@@ -28,17 +28,17 @@ type LoadBalancerNetworkAttachment struct {
 }
 
 type AttachedLoadBalancerInterface struct {
-	Id        int    `json:"id"`
-	PrivateIp string `json:"private_ip"`
-	PublicIp  string `json:"public_ip"`
+	ID        int    `json:"id"`
+	PrivateIP string `json:"private_ip"`
+	PublicIP  string `json:"public_ip"`
 }
 
 type LoadBalancerCreate struct {
 	Name             string `json:"name"`
-	LocationId       int    `json:"location_id"`
-	AttachExternalIp bool   `json:"attach_external_ip"`
-	NetworkId        int    `json:"network_id"`
-	PrivateIp        string `json:"private_ip"`
+	LocationID       int    `json:"location_id"`
+	AttachExternalIP bool   `json:"attach_external_ip"`
+	NetworkID        int    `json:"network_id"`
+	PrivateIP        string `json:"private_ip"`
 }
 
 type LoadBalancerUpdate struct {
@@ -57,8 +57,8 @@ func NewLoadBalancerService(client goclient.Client) LoadBalancerService {
 	return LoadBalancerService{client: client}
 }
 
-func (l LoadBalancerService) Pools(loadBalancerId int) LoadBalancerPoolService {
-	return NewLoadBalancerPoolService(l.client, loadBalancerId)
+func (l LoadBalancerService) Pools(loadBalancerID int) LoadBalancerPoolService {
+	return NewLoadBalancerPoolService(l.client, loadBalancerID)
 }
 
 func (l LoadBalancerService) List(ctx context.Context, cursor goclient.Cursor) (list LoadBalancerList, err error) {
@@ -100,7 +100,7 @@ func (l LoadBalancerService) WaitUntilMutable(ctx context.Context, id int) error
 			return err
 		}
 
-		if loadBalancer.Status.Id != LoadBalancerStatusWorking {
+		if loadBalancer.Status.ID != LoadBalancerStatusWorking {
 			return nil
 		}
 	}
@@ -115,10 +115,10 @@ func getLoadBalancersPath() string {
 	return loadBalancerSegment
 }
 
-func getSpecificLoadBalancerPath(loadBalancerId int) string {
-	return goclient.Join(loadBalancerSegment, loadBalancerId)
+func getSpecificLoadBalancerPath(loadBalancerID int) string {
+	return goclient.Join(loadBalancerSegment, loadBalancerID)
 }
 
-func getLoadBalancerActionPath(loadBalancerId int) string {
-	return goclient.Join(loadBalancerSegment, loadBalancerId, loadBalancerActionSegment)
+func getLoadBalancerActionPath(loadBalancerID int) string {
+	return goclient.Join(loadBalancerSegment, loadBalancerID, loadBalancerActionSegment)
 }
