@@ -18,7 +18,6 @@ type RouteList struct {
 }
 
 type RouteCreate struct {
-	Name        string `json:"name"`
 	Destination string `json:"destination"`
 	NextHop     string `json:"nexthop"`
 }

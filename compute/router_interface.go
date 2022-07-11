@@ -46,7 +46,7 @@ func (r RouterInterfaceService) Delete(ctx context.Context, id int) (err error) 
 	return
 }
 
-const routerInterfacesSegment = "router-interfaces"
+const routerInterfacesSegment = "interfaces"
 
 func getRouterInterfacesPath(routerID int) string {
 	return goclient.Join(routersSegment, routerID, routerInterfacesSegment)

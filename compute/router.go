@@ -30,9 +30,9 @@ type RouterCreate struct {
 }
 
 type RouterUpdate struct {
-	Name        string `json:"name"`
-	Description string `json:"description"`
-	Public      bool   `json:"public"`
+	Name        string `json:"name,omitempty"`
+	Description string `json:"description,omitempty"`
+	Public      bool   `json:"public,omitempty"`
 }
 
 type RouterService struct {
