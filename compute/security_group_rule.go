@@ -10,6 +10,7 @@ const (
 	DirectionIngress = "ingress"
 	DirectionEgress  = "egress"
 
+	ProtocolAny  = -1
 	ProtocolICMP = 1
 	ProtocolTCP  = 6
 	ProtocolUDP  = 17
@@ -75,9 +76,9 @@ func (s SecurityGroupRuleService) Delete(ctx context.Context, id int) (err error
 const securityGroupRulesSegment = "rules"
 
 func getSecurityGroupRulesPath(securityGroupID int) string {
-	return goclient.Join(securityGroupRulesSegment, securityGroupID, securityGroupRulesSegment)
+	return goclient.Join(securityGroupsSegment, securityGroupID, securityGroupRulesSegment)
 }
 
 func getSpecificSecurityGroupRulePath(securityGroupID, ruleID int) string {
-	return goclient.Join(securityGroupRulesSegment, securityGroupID, securityGroupRulesSegment, ruleID)
+	return goclient.Join(securityGroupsSegment, securityGroupID, securityGroupRulesSegment, ruleID)
 }
