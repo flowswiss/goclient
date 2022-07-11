@@ -42,7 +42,7 @@ type LoadBalancerCreate struct {
 }
 
 type LoadBalancerUpdate struct {
-	Name string `json:"name"`
+	Name string `json:"name,omitempty"`
 }
 
 type LoadBalancerPerform struct {

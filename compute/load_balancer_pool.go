@@ -91,7 +91,7 @@ func (l LoadBalancerPoolService) Create(ctx context.Context, body LoadBalancerPo
 }
 
 func (l LoadBalancerPoolService) Update(ctx context.Context, id int, body LoadBalancerPoolUpdate) (pool LoadBalancerPool, err error) {
-	err = l.client.Create(ctx, getSpecificLoadBalancerPoolPath(l.loadBalancerID, id), body, &pool)
+	err = l.client.Update(ctx, getSpecificLoadBalancerPoolPath(l.loadBalancerID, id), body, &pool)
 	return
 }
 
