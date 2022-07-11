@@ -40,7 +40,7 @@ type SnapshotCreate struct {
 }
 
 type SnapshotUpdate struct {
-	Name string `json:"name"`
+	Name string `json:"name,omitempty"`
 }
 
 type SnapshotService struct {
