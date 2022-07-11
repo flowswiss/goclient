@@ -69,7 +69,7 @@ func (n NetworkInterfaceService) Delete(ctx context.Context, id int) (err error)
 }
 
 const (
-	networkInterfacesSegment              = "network-interface"
+	networkInterfacesSegment              = "network-interfaces"
 	networkInterfaceSecuritySegment       = "security"
 	networkInterfaceSecurityGroupsSegment = "security-groups"
 )
