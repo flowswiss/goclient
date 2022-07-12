@@ -46,7 +46,7 @@ func NewClient(options ...Option) Client {
 	client := Client{
 		base:       base,
 		userAgent:  userAgent,
-		httpClient: http.DefaultClient,
+		httpClient: &http.Client{},
 	}
 
 	for _, option := range options {
