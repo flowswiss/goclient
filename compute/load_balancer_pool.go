@@ -12,6 +12,7 @@ type LoadBalancerPool struct {
 	Status         LoadBalancerStatus      `json:"status"`
 	EntryProtocol  LoadBalancerProtocol    `json:"entry_protocol"`
 	TargetProtocol LoadBalancerProtocol    `json:"target_protocol"`
+	Certificate    Certificate             `json:"certificate"`
 	EntryPort      int                     `json:"entry_port"`
 	Algorithm      LoadBalancerAlgorithm   `json:"algorithm"`
 	StickySession  bool                    `json:"sticky_session"`
