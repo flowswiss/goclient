@@ -92,16 +92,23 @@ func (l LoadBalancerService) Delete(ctx context.Context, id int) (err error) {
 }
 
 func (l LoadBalancerService) WaitUntilMutable(ctx context.Context, id int) error {
+	ticker := time.NewTicker(2 * time.Second)
+	defer ticker.Stop()
+
 	for {
-		<-time.After(2 * time.Second)
+		select {
+		case <-ticker.C:
+			loadBalancer, err := l.Get(ctx, id)
+			if err != nil {
+				return err
+			}
 
-		loadBalancer, err := l.Get(ctx, id)
-		if err != nil {
-			return err
-		}
+			if loadBalancer.Status.ID != LoadBalancerStatusWorking {
+				return nil
+			}
 
-		if loadBalancer.Status.ID != LoadBalancerStatusWorking {
-			return nil
+		case <-ctx.Done():
+			return ctx.Err()
 		}
 	}
 }
