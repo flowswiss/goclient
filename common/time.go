@@ -29,6 +29,11 @@ func (t *Time) UnmarshalJSON(b []byte) error {
 		return err
 	}
 
+	if formatted == "" {
+		*t = Time(time.Time{})
+		return nil
+	}
+
 	val, err := time.Parse(timeFormat, formatted)
 
 	var parseErr *time.ParseError

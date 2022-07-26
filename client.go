@@ -151,6 +151,20 @@ func (c Client) Update(ctx context.Context, path string, body interface{}, dest 
 	return nil
 }
 
+func (c Client) Set(ctx context.Context, path string, body interface{}, dest interface{}) error {
+	req, err := c.NewRequest(http.MethodPut, path, body)
+	if err != nil {
+		return fmt.Errorf("create get request: %w", err)
+	}
+
+	_, err = c.Do(ctx, req, dest)
+	if err != nil {
+		return fmt.Errorf("%s %s: %w", req.Method, req.URL.String(), err)
+	}
+
+	return nil
+}
+
 func (c Client) Delete(ctx context.Context, path string) error {
 	req, err := c.NewRequest(http.MethodDelete, path, nil)
 	if err != nil {
