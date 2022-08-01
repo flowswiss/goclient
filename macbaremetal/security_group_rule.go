@@ -10,6 +10,7 @@ const (
 	DirectionIngress = "ingress"
 	DirectionEgress  = "egress"
 
+	ProtocolAny  = -1
 	ProtocolICMP = 1
 	ProtocolTCP  = 6
 	ProtocolUDP  = 17

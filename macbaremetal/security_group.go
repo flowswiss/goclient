@@ -52,6 +52,11 @@ func (s SecurityGroupService) Create(ctx context.Context, body SecurityGroupCrea
 	return
 }
 
+func (s SecurityGroupService) Get(ctx context.Context, id int) (securityGroup SecurityGroup, err error) {
+	err = s.client.Get(ctx, getSpecificSecurityGroupPath(id), &securityGroup)
+	return
+}
+
 func (s SecurityGroupService) Update(ctx context.Context, id int, body SecurityGroupUpdate) (securityGroup SecurityGroup, err error) {
 	err = s.client.Update(ctx, getSpecificSecurityGroupPath(id), body, &securityGroup)
 	return
