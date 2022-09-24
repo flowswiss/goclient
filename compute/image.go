@@ -14,6 +14,7 @@ type Image struct {
 	Key                string           `json:"key"`
 	Category           string           `json:"category"`
 	Type               string           `json:"type"`
+	Username           string           `json:"username"`
 	MinRootDiskSize    int              `json:"min_root_disk_size"`
 	Sorting            int              `json:"sorting"`
 	RequiredLicenses   []common.Product `json:"required_licenses"`
