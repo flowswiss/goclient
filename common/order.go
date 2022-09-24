@@ -47,8 +47,10 @@ func (o Ordering) ExtractIdentifier() (int, error) {
 }
 
 type Order struct {
-	ID     int         `json:"id"`
-	Status OrderStatus `json:"status"`
+	ID        int         `json:"id"`
+	Status    OrderStatus `json:"status"`
+	Product   Product     `json:"product_instance"`
+	CreatedAt Time        `json:"created_at"`
 }
 
 type OrderService struct {
@@ -64,27 +66,41 @@ func (o OrderService) Get(ctx context.Context, id int) (order Order, err error) 
 	return
 }
 
+// Deprecated: use WaitUntilProcessed instead
 func (o OrderService) WaitForCompletion(ctx context.Context, ordering Ordering) error {
+	_, err := o.WaitUntilProcessed(ctx, ordering)
+	return err
+}
+
+func (o OrderService) WaitUntilProcessed(ctx context.Context, ordering Ordering) (order Order, err error) {
 	id, err := ordering.ExtractIdentifier()
 	if err != nil {
-		return fmt.Errorf("extract ordering identifier: %w", err)
+		return Order{}, fmt.Errorf("extract ordering identifier: %w", err)
 	}
 
+	ticker := time.NewTicker(time.Second)
+	defer ticker.Stop()
+
 	for {
-		order, err := o.Get(ctx, id)
+		order, err = o.Get(ctx, id)
 		if err != nil {
-			return err
+			return Order{}, fmt.Errorf("fetch order: %w", err)
 		}
 
 		if order.Status.ID == OrderStatusSucceeded {
-			return nil
+			return order, nil
 		}
 
 		if order.Status.ID == OrderStatusFailed {
-			return ErrOrderFailed
+			return order, ErrOrderFailed
 		}
 
-		<-time.After(time.Second)
+		select {
+		case <-ticker.C:
+
+		case <-ctx.Done():
+			return Order{}, ctx.Err()
+		}
 	}
 }
 
