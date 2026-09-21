@@ -1,7 +1,7 @@
 package commontests
 
 import (
-	"github.com/flowswiss/goclient/common"
+	"github.com/flowswiss/goclient/v2/common"
 )
 
 const (

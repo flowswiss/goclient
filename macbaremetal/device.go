@@ -3,47 +3,38 @@ package macbaremetal
 import (
 	"context"
 
-	"github.com/flowswiss/goclient"
-	"github.com/flowswiss/goclient/common"
+	"github.com/flowswiss/goclient/v2/common"
+	"github.com/flowswiss/goclient/v2/core"
 )
 
-type Device struct {
-	ID                int                        `json:"id"`
-	Name              string                     `json:"name"`
-	Location          common.Location            `json:"location"`
-	Product           common.Product             `json:"product"`
-	Status            DeviceStatus               `json:"status"`
-	OperatingSystem   DeviceOperatingSystem      `json:"operating_system"`
-	Network           Network                    `json:"network"`
-	Hostname          string                     `json:"hostname"`
-	NetworkInterfaces []AttachedNetworkInterface `json:"network_interfaces"`
-	Price             float64                    `json:"price"`
-	MetalControl      string                     `json:"metal_control"`
-	MetalControlTools string                     `json:"metal_control_tools"`
+type DeviceService struct {
+	client *core.Client
 }
 
-type DeviceOperatingSystem struct {
-	OS      string `json:"os"`
-	Name    string `json:"name"`
-	Version string `json:"version"`
+func NewDeviceService(client *core.Client) *DeviceService {
+	return &DeviceService{client: client}
 }
 
-type AttachedNetworkInterface struct {
-	ID        int    `json:"id"`
-	PrivateIP string `json:"private_ip"`
-	PublicIP  string `json:"public_ip"`
+func (d DeviceService) List(ctx context.Context, cursor core.Cursor) (list common.List[Device], err error) {
+	list.Pagination, err = d.client.List(ctx, getDevicesPath(), cursor, &list.Items)
+	return
 }
 
-type DeviceList struct {
-	Items      []Device
-	Pagination goclient.Pagination
+type DeviceGetReq struct {
+	ID uint `json:"-"`
 }
 
-type DeviceVNCConnection struct {
-	Ref string `json:"ref"`
+func (d DeviceService) Get(ctx context.Context, req DeviceGetReq) (device Device, err error) {
+	err = d.client.Get(ctx, getSpecificDevicePath(req.ID), &device)
+	return
 }
 
-type DeviceCreate struct {
+func (d DeviceService) GetVNC(ctx context.Context, req DeviceGetReq) (vnc DeviceVNCConnection, err error) {
+	err = d.client.Get(ctx, getDeviceVNCPath(req.ID), &vnc)
+	return
+}
+
+type DeviceCreateReq struct {
 	Name            string `json:"name"`
 	LocationID      int    `json:"location_id"`
 	ProductID       int    `json:"product_id"`
@@ -52,61 +43,90 @@ type DeviceCreate struct {
 	Password        string `json:"password"`
 }
 
-type DeviceUpdate struct {
-	Name string `json:"name,omitempty"`
-}
-
-type DeviceService struct {
-	client goclient.Client
-}
-
-func NewDeviceService(client goclient.Client) DeviceService {
-	return DeviceService{client: client}
-}
-
-func (d DeviceService) List(ctx context.Context, cursor goclient.Cursor) (list DeviceList, err error) {
-	list.Pagination, err = d.client.List(ctx, getDevicesPath(), cursor, &list.Items)
+func (d DeviceService) Create(ctx context.Context, req DeviceCreateReq) (order common.Ordering, err error) {
+	err = d.client.Create(ctx, getDevicesPath(), req, &order)
 	return
 }
 
-func (d DeviceService) Get(ctx context.Context, id int) (device Device, err error) {
-	err = d.client.Get(ctx, getSpecificDevicePath(id), &device)
+type DeviceUpdateReq struct {
+	ID uint `json:"-"`
+
+	Name string `json:"name"`
+}
+
+func (d DeviceService) Update(ctx context.Context, req DeviceUpdateReq) (device Device, err error) {
+	err = d.client.Update(ctx, getSpecificDevicePath(req.ID), req, &device)
 	return
 }
 
-func (d DeviceService) GetVNC(ctx context.Context, id int) (vnc DeviceVNCConnection, err error) {
-	err = d.client.Get(ctx, getDeviceVNCPath(id), &vnc)
+type DeviceDeleteReq struct {
+	ID uint `json:"-"`
+}
+
+func (d DeviceService) Delete(ctx context.Context, req DeviceDeleteReq) (err error) {
+	err = d.client.Delete(ctx, getSpecificDevicePath(req.ID))
 	return
 }
 
-func (d DeviceService) Create(ctx context.Context, body DeviceCreate) (order common.Ordering, err error) {
-	err = d.client.Create(ctx, getDevicesPath(), body, &order)
+type DevicePerformReq struct {
+	DeviceID uint `json:"-"`
+
+	Action string `json:"action"`
+}
+
+func (d DeviceService) Perform(ctx context.Context, req DevicePerformReq) (device Device, err error) {
+	err = d.client.Create(ctx, getDeviceActionPath(req.DeviceID), req, &device)
 	return
 }
 
-func (d DeviceService) Update(ctx context.Context, id int, body DeviceUpdate) (device Device, err error) {
-	err = d.client.Update(ctx, getSpecificDevicePath(id), body, &device)
+type DeviceWorkflowListReq struct {
+	DeviceID uint `json:"-"`
+
+	Cursor core.Cursor `json:"-"`
+}
+
+func (d DeviceService) WorkflowList(ctx context.Context, req DeviceWorkflowListReq) (
+	list common.List[DeviceWorkflow],
+	err error,
+) {
+	list.Pagination, err = d.client.List(ctx, getDeviceWorkflowPath(req.DeviceID), req.Cursor, &list.Items)
 	return
 }
 
-func (d DeviceService) Delete(ctx context.Context, id int) (err error) {
-	err = d.client.Delete(ctx, getSpecificDevicePath(id))
+type DeviceWorkflowRunReq struct {
+	DeviceID uint `json:"-"`
+
+	Workflow string `json:"workflow"`
+}
+
+func (d DeviceService) WorkflowRun(ctx context.Context, req DeviceWorkflowRunReq) (device Device, err error) {
+	err = d.client.Create(ctx, getDeviceWorkflowPath(req.DeviceID), req, &device)
 	return
 }
 
 const (
-	devicesSegment   = "/v4/macbaremetal/devices"
-	deviceVNCSegment = "vnc"
+	devicesSegment        = "/v4/macbaremetal/devices"
+	deviceVNCSegment      = "vnc"
+	deviceActionSegment   = "actions"
+	deviceWorkflowSegment = "workflows"
 )
 
 func getDevicesPath() string {
 	return devicesSegment
 }
 
-func getSpecificDevicePath(id int) string {
-	return goclient.Join(devicesSegment, id)
+func getSpecificDevicePath(id uint) string {
+	return core.Join(devicesSegment, id)
 }
 
-func getDeviceVNCPath(id int) string {
-	return goclient.Join(getSpecificDevicePath(id), deviceVNCSegment)
+func getDeviceVNCPath(id uint) string {
+	return core.Join(getSpecificDevicePath(id), deviceVNCSegment)
+}
+
+func getDeviceActionPath(id uint) string {
+	return core.Join(devicesSegment, id, deviceActionSegment)
+}
+
+func getDeviceWorkflowPath(id uint) string {
+	return core.Join(devicesSegment, id, deviceWorkflowSegment)
 }

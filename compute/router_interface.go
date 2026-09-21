@@ -3,55 +3,63 @@ package compute
 import (
 	"context"
 
-	"github.com/flowswiss/goclient"
+	"github.com/flowswiss/goclient/v2/common"
+	"github.com/flowswiss/goclient/v2/core"
 )
 
-type RouterInterface struct {
-	ID        int     `json:"id"`
-	PrivateIP string  `json:"private_ip"`
-	Network   Network `json:"network"`
+type RouterInterfaceService struct {
+	client *core.Client
 }
 
-type RouterInterfaceList struct {
-	Items      []RouterInterface
-	Pagination goclient.Pagination
+func NewRouterInterfaceService(client *core.Client) *RouterInterfaceService {
+	return &RouterInterfaceService{client: client}
 }
 
-type RouterInterfaceCreate struct {
+type RouterInterfaceListReq struct {
+	RouterID uint `json:"-"`
+
+	Cursor core.Cursor `json:"-"`
+}
+
+func (r RouterInterfaceService) List(ctx context.Context, req RouterInterfaceListReq) (
+	list common.List[RouterInterface],
+	err error,
+) {
+	list.Pagination, err = r.client.List(ctx, getRouterInterfacesPath(req.RouterID), req.Cursor, &list.Items)
+	return
+}
+
+type RouterInterfaceCreateReq struct {
+	RouterID uint `json:"-"`
+
 	NetworkID int    `json:"network_id"`
 	PrivateIP string `json:"private_ip,omitempty"`
 }
 
-type RouterInterfaceService struct {
-	client   goclient.Client
-	routerID int
-}
-
-func NewRouterInterfaceService(client goclient.Client, routerID int) RouterInterfaceService {
-	return RouterInterfaceService{client: client, routerID: routerID}
-}
-
-func (r RouterInterfaceService) List(ctx context.Context, cursor goclient.Cursor) (list RouterInterfaceList, err error) {
-	list.Pagination, err = r.client.List(ctx, getRouterInterfacesPath(r.routerID), cursor, &list.Items)
+func (r RouterInterfaceService) Create(
+	ctx context.Context,
+	req RouterInterfaceCreateReq,
+) (routerInterface RouterInterface, err error) {
+	err = r.client.Create(ctx, getRouterInterfacesPath(req.RouterID), req, &routerInterface)
 	return
 }
 
-func (r RouterInterfaceService) Create(ctx context.Context, body RouterInterfaceCreate) (routerInterface RouterInterface, err error) {
-	err = r.client.Create(ctx, getRouterInterfacesPath(r.routerID), body, &routerInterface)
-	return
+type RouterInterfaceDeleteReq struct {
+	RouterID          uint `json:"-"`
+	RouterInterfaceID uint `json:"-"`
 }
 
-func (r RouterInterfaceService) Delete(ctx context.Context, id int) (err error) {
-	err = r.client.Delete(ctx, getSpecificRouterInterfacePath(r.routerID, id))
+func (r RouterInterfaceService) Delete(ctx context.Context, req RouterInterfaceDeleteReq) (err error) {
+	err = r.client.Delete(ctx, getSpecificRouterInterfacePath(req.RouterID, req.RouterInterfaceID))
 	return
 }
 
 const routerInterfacesSegment = "interfaces"
 
-func getRouterInterfacesPath(routerID int) string {
-	return goclient.Join(routersSegment, routerID, routerInterfacesSegment)
+func getRouterInterfacesPath(routerID uint) string {
+	return core.Join(routersSegment, routerID, routerInterfacesSegment)
 }
 
-func getSpecificRouterInterfacePath(routerID, routerInterfaceID int) string {
-	return goclient.Join(routersSegment, routerID, routerInterfacesSegment, routerInterfaceID)
+func getSpecificRouterInterfacePath(routerID, routerInterfaceID uint) string {
+	return core.Join(routersSegment, routerID, routerInterfacesSegment, routerInterfaceID)
 }

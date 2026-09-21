@@ -1,8 +1,8 @@
 package computetests
 
 import (
-	commontests "github.com/flowswiss/goclient/common/tests"
-	"github.com/flowswiss/goclient/compute"
+	commontests "github.com/flowswiss/goclient/v2/common/tests"
+	"github.com/flowswiss/goclient/v2/compute"
 )
 
 const (

@@ -3,32 +3,39 @@ package kubernetes
 import (
 	"context"
 
-	"github.com/flowswiss/goclient"
-	"github.com/flowswiss/goclient/compute"
+	"github.com/flowswiss/goclient/v2/common"
+	"github.com/flowswiss/goclient/v2/compute"
+	"github.com/flowswiss/goclient/v2/core"
 )
 
 type LoadBalancer = compute.LoadBalancer
-type LoadBalancerList = compute.LoadBalancerList
 
 type LoadBalancerService struct {
-	client    goclient.Client
-	clusterID int
+	client *core.Client
 }
 
-func NewLoadBalancerService(client goclient.Client, clusterID int) LoadBalancerService {
-	return LoadBalancerService{
-		client:    client,
-		clusterID: clusterID,
+func NewLoadBalancerService(client *core.Client) *LoadBalancerService {
+	return &LoadBalancerService{
+		client: client,
 	}
 }
 
-func (v LoadBalancerService) List(ctx context.Context, cursor goclient.Cursor) (list LoadBalancerList, err error) {
-	list.Pagination, err = v.client.List(ctx, getLoadBalancerPath(v.clusterID), cursor, &list.Items)
+type LoadBalancerListReq struct {
+	ClusterID uint `json:"-"`
+
+	Cursor core.Cursor `json:"-"`
+}
+
+func (v LoadBalancerService) List(ctx context.Context, req LoadBalancerListReq) (
+	list common.List[LoadBalancer],
+	err error,
+) {
+	list.Pagination, err = v.client.List(ctx, getLoadBalancerPath(req.ClusterID), req.Cursor, &list.Items)
 	return
 }
 
 const loadBalancerSegment = "load-balancers"
 
-func getLoadBalancerPath(clusterID int) string {
-	return goclient.Join(clusterSegment, clusterID, loadBalancerSegment)
+func getLoadBalancerPath(clusterID uint) string {
+	return core.Join(clusterSegment, clusterID, loadBalancerSegment)
 }

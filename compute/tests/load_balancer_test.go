@@ -7,19 +7,19 @@ import (
 	"testing"
 	"time"
 
-	"github.com/flowswiss/goclient"
-	commontests "github.com/flowswiss/goclient/common/tests"
-	"github.com/flowswiss/goclient/compute"
-	"github.com/flowswiss/goclient/internal/tests"
+	commontests "github.com/flowswiss/goclient/v2/common/tests"
+	"github.com/flowswiss/goclient/v2/compute"
+	"github.com/flowswiss/goclient/v2/core"
+	"github.com/flowswiss/goclient/v2/testutil"
 )
 
 func TestLoadBalancerService(t *testing.T) {
-	tests.Handle("/v4/compute/load-balancers", http.MethodGet, tests.StaticResponse(http.StatusOK, `[`+LoadBalancerData+`]`))
-	tests.Handle("/v4/compute/load-balancers", http.MethodPost, tests.StaticResponse(http.StatusCreated, commontests.OrderingData))
-	tests.Handle("/v4/compute/load-balancers/{id:\\d+}", http.MethodGet, tests.StaticResponse(http.StatusOK, LoadBalancerData))
-	tests.Handle("/v4/compute/load-balancers/{id:\\d+}", http.MethodPatch, tests.StaticResponse(http.StatusOK, LoadBalancerData))
-	tests.Handle("/v4/compute/load-balancers/{id:\\d+}", http.MethodDelete, tests.StaticResponse(http.StatusNoContent, ``))
-	client := tests.Client()
+	testutil.Handle("/v4/compute/load-balancers", http.MethodGet, testutil.StaticResponse(http.StatusOK, `[`+LoadBalancerData+`]`))
+	testutil.Handle("/v4/compute/load-balancers", http.MethodPost, testutil.StaticResponse(http.StatusCreated, commontests.OrderingData))
+	testutil.Handle("/v4/compute/load-balancers/{id:\\d+}", http.MethodGet, testutil.StaticResponse(http.StatusOK, LoadBalancerData))
+	testutil.Handle("/v4/compute/load-balancers/{id:\\d+}", http.MethodPatch, testutil.StaticResponse(http.StatusOK, LoadBalancerData))
+	testutil.Handle("/v4/compute/load-balancers/{id:\\d+}", http.MethodDelete, testutil.StaticResponse(http.StatusNoContent, ``))
+	client := testutil.Client()
 
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second)
 	defer cancel()
@@ -27,7 +27,7 @@ func TestLoadBalancerService(t *testing.T) {
 	service := compute.NewLoadBalancerService(client)
 
 	t.Run("list", func(t *testing.T) {
-		loadBalancers, err := service.List(ctx, goclient.Cursor{})
+		loadBalancers, err := service.List(ctx, core.Cursor{})
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -38,7 +38,7 @@ func TestLoadBalancerService(t *testing.T) {
 	})
 
 	t.Run("create", func(t *testing.T) {
-		ordering, err := service.Create(ctx, compute.LoadBalancerCreate{
+		ordering, err := service.Create(ctx, compute.LoadBalancerCreateReq{
 			Name:             "lb-test",
 			LocationID:       1,
 			AttachExternalIP: true,
@@ -56,7 +56,7 @@ func TestLoadBalancerService(t *testing.T) {
 	})
 
 	t.Run("get", func(t *testing.T) {
-		loadBalancer, err := service.Get(ctx, 1)
+		loadBalancer, err := service.Get(ctx, compute.LoadBalancerGetReq{ID: 1})
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -67,7 +67,7 @@ func TestLoadBalancerService(t *testing.T) {
 	})
 
 	t.Run("update", func(t *testing.T) {
-		loadBalancer, err := service.Update(ctx, 1, compute.LoadBalancerUpdate{
+		loadBalancer, err := service.Update(ctx, compute.LoadBalancerUpdateReq{
 			Name: "lb-test",
 		})
 
@@ -81,7 +81,7 @@ func TestLoadBalancerService(t *testing.T) {
 	})
 
 	t.Run("delete", func(t *testing.T) {
-		err := service.Delete(ctx, 1)
+		err := service.Delete(ctx, compute.LoadBalancerDeleteReq{ID: 1})
 		if err != nil {
 			t.Fatal(err)
 		}

@@ -3,30 +3,33 @@ package compute
 import (
 	"context"
 
-	"github.com/flowswiss/goclient"
-	"github.com/flowswiss/goclient/common"
+	"github.com/flowswiss/goclient/v2/common"
+	"github.com/flowswiss/goclient/v2/core"
 )
 
-type Network struct {
-	ID                  int             `json:"id"`
-	Name                string          `json:"name"`
-	Description         string          `json:"description"`
-	CIDR                string          `json:"cidr"`
-	Location            common.Location `json:"location"`
-	DomainNameServers   []string        `json:"domain_name_servers"`
-	AllocationPoolStart string          `json:"allocation_pool_start"`
-	AllocationPoolEnd   string          `json:"allocation_pool_end"`
-	GatewayIP           string          `json:"gateway_ip"`
-	UsedIPs             int             `json:"used_ips"`
-	TotalIPs            int             `json:"total_ips"`
+type NetworkService struct {
+	client *core.Client
 }
 
-type NetworkList struct {
-	Items      []Network
-	Pagination goclient.Pagination
+func NewNetworkService(client *core.Client) *NetworkService {
+	return &NetworkService{client: client}
 }
 
-type NetworkCreate struct {
+func (n NetworkService) List(ctx context.Context, cursor core.Cursor) (list common.List[Network], err error) {
+	list.Pagination, err = n.client.List(ctx, getNetworksPath(), cursor, &list.Items)
+	return
+}
+
+type NetworkGetReq struct {
+	ID uint `json:"-"`
+}
+
+func (n NetworkService) Get(ctx context.Context, req NetworkGetReq) (network Network, err error) {
+	err = n.client.Get(ctx, getSpecificNetworkPath(req.ID), &network)
+	return
+}
+
+type NetworkCreateReq struct {
 	Name                string   `json:"name,omitempty"`
 	Description         string   `json:"description,omitempty"`
 	LocationID          int      `json:"location_id,omitempty"`
@@ -37,45 +40,33 @@ type NetworkCreate struct {
 	GatewayIP           string   `json:"gateway_ip,omitempty"`
 }
 
-type NetworkUpdate struct {
-	Name                string   `json:"name,omitempty"`
-	Description         string   `json:"description,omitempty"`
+func (n NetworkService) Create(ctx context.Context, req NetworkCreateReq) (network Network, err error) {
+	err = n.client.Create(ctx, getNetworksPath(), req, &network)
+	return
+}
+
+type NetworkUpdateReq struct {
+	ID uint `json:"-"`
+
+	Name                *string  `json:"name,omitempty"`
+	Description         *string  `json:"description,omitempty"`
 	DomainNameServers   []string `json:"domain_name_servers,omitempty"`
-	AllocationPoolStart string   `json:"allocation_pool_start,omitempty"`
-	AllocationPoolEnd   string   `json:"allocation_pool_end,omitempty"`
-	GatewayIP           string   `json:"gateway_ip,omitempty"`
+	AllocationPoolStart *string  `json:"allocation_pool_start,omitempty"`
+	AllocationPoolEnd   *string  `json:"allocation_pool_end,omitempty"`
+	GatewayIP           *string  `json:"gateway_ip,omitempty"`
 }
 
-type NetworkService struct {
-	client goclient.Client
-}
-
-func NewNetworkService(client goclient.Client) NetworkService {
-	return NetworkService{client: client}
-}
-
-func (n NetworkService) List(ctx context.Context, cursor goclient.Cursor) (list NetworkList, err error) {
-	list.Pagination, err = n.client.List(ctx, getNetworksPath(), cursor, &list.Items)
+func (n NetworkService) Update(ctx context.Context, req NetworkUpdateReq) (network Network, err error) {
+	err = n.client.Update(ctx, getSpecificNetworkPath(req.ID), req, &network)
 	return
 }
 
-func (n NetworkService) Get(ctx context.Context, id int) (network Network, err error) {
-	err = n.client.Get(ctx, getSpecificNetworkPath(id), &network)
-	return
+type NetworkDeleteReq struct {
+	ID uint `json:"-"`
 }
 
-func (n NetworkService) Create(ctx context.Context, body NetworkCreate) (network Network, err error) {
-	err = n.client.Create(ctx, getNetworksPath(), body, &network)
-	return
-}
-
-func (n NetworkService) Update(ctx context.Context, id int, body NetworkUpdate) (network Network, err error) {
-	err = n.client.Update(ctx, getSpecificNetworkPath(id), body, &network)
-	return
-}
-
-func (n NetworkService) Delete(ctx context.Context, id int) (err error) {
-	err = n.client.Delete(ctx, getSpecificNetworkPath(id))
+func (n NetworkService) Delete(ctx context.Context, req NetworkDeleteReq) (err error) {
+	err = n.client.Delete(ctx, getSpecificNetworkPath(req.ID))
 	return
 }
 
@@ -85,6 +76,6 @@ func getNetworksPath() string {
 	return networksSegment
 }
 
-func getSpecificNetworkPath(networkID int) string {
-	return goclient.Join(networksSegment, networkID)
+func getSpecificNetworkPath(networkID uint) string {
+	return core.Join(networksSegment, networkID)
 }

@@ -3,8 +3,8 @@ package objectstorage
 import (
 	"context"
 
-	"github.com/flowswiss/goclient"
-	"github.com/flowswiss/goclient/common"
+	"github.com/flowswiss/goclient/v2/common"
+	"github.com/flowswiss/goclient/v2/core"
 )
 
 type Credential struct {
@@ -15,22 +15,17 @@ type Credential struct {
 	SecretKey string          `json:"secret_key"`
 }
 
-type CredentialList struct {
-	Items      []Credential
-	Pagination goclient.Pagination
-}
-
 type CredentialService struct {
-	client goclient.Client
+	client *core.Client
 }
 
-func NewCredentialService(client goclient.Client) CredentialService {
-	return CredentialService{
+func NewCredentialService(client *core.Client) *CredentialService {
+	return &CredentialService{
 		client: client,
 	}
 }
 
-func (i CredentialService) List(ctx context.Context, cursor goclient.Cursor) (list CredentialList, err error) {
+func (i CredentialService) List(ctx context.Context, cursor core.Cursor) (list common.List[Credential], err error) {
 	list.Pagination, err = i.client.List(ctx, getCredentialSegment(), cursor, &list.Items)
 	return
 }

@@ -7,16 +7,16 @@ import (
 	"testing"
 	"time"
 
-	"github.com/flowswiss/goclient"
-	"github.com/flowswiss/goclient/common"
-	"github.com/flowswiss/goclient/internal/tests"
+	"github.com/flowswiss/goclient/v2/common"
+	"github.com/flowswiss/goclient/v2/core"
+	"github.com/flowswiss/goclient/v2/testutil"
 )
 
 func TestProductService(t *testing.T) {
-	tests.Handle("/v4/products", http.MethodGet, tests.StaticResponse(http.StatusOK, `[`+ProductData+`]`))
-	tests.Handle("/v4/products/{type:[a-z\\-]+}", http.MethodGet, tests.StaticResponse(http.StatusOK, `[`+ProductData+`]`))
-	tests.Handle("/v4/products/{id:\\d+}", http.MethodGet, tests.StaticResponse(http.StatusOK, ProductData))
-	client := tests.Client()
+	testutil.Handle("/v4/products", http.MethodGet, testutil.StaticResponse(http.StatusOK, `[`+ProductData+`]`))
+	testutil.Handle("/v4/products/{type:[a-z\\-]+}", http.MethodGet, testutil.StaticResponse(http.StatusOK, `[`+ProductData+`]`))
+	testutil.Handle("/v4/products/{id:\\d+}", http.MethodGet, testutil.StaticResponse(http.StatusOK, ProductData))
+	client := testutil.Client()
 
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second)
 	defer cancel()
@@ -24,7 +24,7 @@ func TestProductService(t *testing.T) {
 	service := common.NewProductService(client)
 
 	t.Run("list", func(t *testing.T) {
-		products, err := service.List(ctx, goclient.Cursor{})
+		products, err := service.List(ctx, core.Cursor{})
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -35,7 +35,10 @@ func TestProductService(t *testing.T) {
 	})
 
 	t.Run("list-by-type", func(t *testing.T) {
-		products, err := service.ListByType(ctx, "type", goclient.Cursor{})
+		products, err := service.ListByType(ctx, common.ProductListByTypeReq{
+			ProductType: "type",
+			Cursor:      core.Cursor{},
+		})
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -46,7 +49,7 @@ func TestProductService(t *testing.T) {
 	})
 
 	t.Run("get", func(t *testing.T) {
-		product, err := service.Get(ctx, 1)
+		product, err := service.Get(ctx, common.ProductGetReq{ID: 1})
 		if err != nil {
 			t.Fatal(err)
 		}

@@ -3,68 +3,84 @@ package compute
 import (
 	"context"
 
-	"github.com/flowswiss/goclient"
+	"github.com/flowswiss/goclient/v2/common"
+	"github.com/flowswiss/goclient/v2/core"
 )
 
-type NetworkInterface struct {
-	ID                int             `json:"id"`
-	PrivateIP         string          `json:"private_ip"`
-	MacAddress        string          `json:"mac_address"`
-	Network           Network         `json:"network"`
-	AttachedElasticIP ElasticIP       `json:"attached_elastic_ip"`
-	SecurityGroups    []SecurityGroup `json:"security_groups"`
-	Security          bool            `json:"security"`
+type NetworkInterfaceService struct {
+	client *core.Client
 }
 
-type NetworkInterfaceList struct {
-	Items      []NetworkInterface
-	Pagination goclient.Pagination
+func NewNetworkInterfaceService(client *core.Client) *NetworkInterfaceService {
+	return &NetworkInterfaceService{client: client}
 }
 
-type NetworkInterfaceCreate struct {
+type NetworkInterfaceListReq struct {
+	ServerID uint `json:"-"`
+
+	Cursor core.Cursor `json:"-"`
+}
+
+func (n NetworkInterfaceService) List(ctx context.Context, req NetworkInterfaceListReq) (
+	list common.List[NetworkInterface],
+	err error,
+) {
+	list.Pagination, err = n.client.List(ctx, getNetworkInterfacesPath(req.ServerID), req.Cursor, &list.Items)
+	return
+}
+
+type NetworkInterfaceCreateReq struct {
+	ServerID uint `json:"-"`
+
 	NetworkID int    `json:"network_id"`
 	PrivateIP string `json:"private_ip"`
 }
 
-type NetworkInterfaceSecurityUpdate struct {
+func (n NetworkInterfaceService) Create(
+	ctx context.Context,
+	req NetworkInterfaceCreateReq,
+) (networkInterface NetworkInterface, err error) {
+	err = n.client.Create(ctx, getNetworkInterfacesPath(req.ServerID), req, &networkInterface)
+	return
+}
+
+type NetworkInterfaceSecurityUpdateReq struct {
+	ServerID           uint `json:"-"`
+	NetworkInterfaceID uint `json:"-"`
+
 	Security bool `json:"security"`
 }
 
-type NetworkInterfaceSecurityGroupUpdate struct {
+func (n NetworkInterfaceService) UpdateSecurity(
+	ctx context.Context,
+	req NetworkInterfaceSecurityUpdateReq,
+) (networkInterface NetworkInterface, err error) {
+	err = n.client.Update(ctx, getNetworkInterfaceSecurityPath(req.ServerID, req.NetworkInterfaceID), req, &networkInterface)
+	return
+}
+
+type NetworkInterfaceSecurityGroupUpdateReq struct {
+	ServerID           uint `json:"-"`
+	NetworkInterfaceID uint `json:"-"`
+
 	SecurityGroupIDs []int `json:"security_group_ids"`
 }
 
-type NetworkInterfaceService struct {
-	client   goclient.Client
-	serverID int
-}
-
-func NewNetworkInterfaceService(client goclient.Client, serverID int) NetworkInterfaceService {
-	return NetworkInterfaceService{client: client, serverID: serverID}
-}
-
-func (n NetworkInterfaceService) List(ctx context.Context, cursor goclient.Cursor) (list NetworkInterfaceList, err error) {
-	list.Pagination, err = n.client.List(ctx, getNetworkInterfacesPath(n.serverID), cursor, &list.Items)
+func (n NetworkInterfaceService) UpdateSecurityGroups(
+	ctx context.Context,
+	req NetworkInterfaceSecurityGroupUpdateReq,
+) (networkInterface NetworkInterface, err error) {
+	err = n.client.Update(ctx, getNetworkInterfaceSecurityGroupsPath(req.ServerID, req.NetworkInterfaceID), req, &networkInterface)
 	return
 }
 
-func (n NetworkInterfaceService) Create(ctx context.Context, body NetworkInterfaceCreate) (networkInterface NetworkInterface, err error) {
-	err = n.client.Create(ctx, getNetworkInterfacesPath(n.serverID), body, &networkInterface)
-	return
+type NetworkInterfaceDeleteReq struct {
+	ServerID           uint `json:"-"`
+	NetworkInterfaceID uint `json:"-"`
 }
 
-func (n NetworkInterfaceService) UpdateSecurity(ctx context.Context, id int, body NetworkInterfaceSecurityUpdate) (networkInterface NetworkInterface, err error) {
-	err = n.client.Update(ctx, getNetworkInterfaceSecurityPath(n.serverID, id), body, &networkInterface)
-	return
-}
-
-func (n NetworkInterfaceService) UpdateSecurityGroups(ctx context.Context, id int, body NetworkInterfaceSecurityGroupUpdate) (networkInterface NetworkInterface, err error) {
-	err = n.client.Update(ctx, getNetworkInterfaceSecurityGroupsPath(n.serverID, id), body, &networkInterface)
-	return
-}
-
-func (n NetworkInterfaceService) Delete(ctx context.Context, id int) (err error) {
-	err = n.client.Delete(ctx, getSpecificNetworkInterfacePath(n.serverID, id))
+func (n NetworkInterfaceService) Delete(ctx context.Context, req NetworkInterfaceDeleteReq) (err error) {
+	err = n.client.Delete(ctx, getSpecificNetworkInterfacePath(req.ServerID, req.NetworkInterfaceID))
 	return
 }
 
@@ -74,18 +90,18 @@ const (
 	networkInterfaceSecurityGroupsSegment = "security-groups"
 )
 
-func getNetworkInterfacesPath(serverID int) string {
-	return goclient.Join(serversSegment, serverID, networkInterfacesSegment)
+func getNetworkInterfacesPath(serverID uint) string {
+	return core.Join(serversSegment, serverID, networkInterfacesSegment)
 }
 
-func getSpecificNetworkInterfacePath(serverID, networkInterfaceID int) string {
-	return goclient.Join(serversSegment, serverID, networkInterfacesSegment, networkInterfaceID)
+func getSpecificNetworkInterfacePath(serverID, networkInterfaceID uint) string {
+	return core.Join(serversSegment, serverID, networkInterfacesSegment, networkInterfaceID)
 }
 
-func getNetworkInterfaceSecurityPath(serverID, networkInterfaceID int) string {
-	return goclient.Join(serversSegment, serverID, networkInterfacesSegment, networkInterfaceID, networkInterfaceSecuritySegment)
+func getNetworkInterfaceSecurityPath(serverID, networkInterfaceID uint) string {
+	return core.Join(serversSegment, serverID, networkInterfacesSegment, networkInterfaceID, networkInterfaceSecuritySegment)
 }
 
-func getNetworkInterfaceSecurityGroupsPath(serverID, networkInterfaceID int) string {
-	return goclient.Join(serversSegment, serverID, networkInterfacesSegment, networkInterfaceID, networkInterfaceSecurityGroupsSegment)
+func getNetworkInterfaceSecurityGroupsPath(serverID, networkInterfaceID uint) string {
+	return core.Join(serversSegment, serverID, networkInterfacesSegment, networkInterfaceID, networkInterfaceSecurityGroupsSegment)
 }

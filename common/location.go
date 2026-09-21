@@ -3,7 +3,7 @@ package common
 import (
 	"context"
 
-	"github.com/flowswiss/goclient"
+	"github.com/flowswiss/goclient/v2/core"
 )
 
 type Location struct {
@@ -14,26 +14,25 @@ type Location struct {
 	Modules []Module `json:"available_modules"`
 }
 
-type LocationList struct {
-	goclient.Pagination
-	Items []Location
-}
-
 type LocationService struct {
-	client goclient.Client
+	client *core.Client
 }
 
-func NewLocationService(client goclient.Client) LocationService {
-	return LocationService{client: client}
+func NewLocationService(client *core.Client) *LocationService {
+	return &LocationService{client: client}
 }
 
-func (l LocationService) List(ctx context.Context, cursor goclient.Cursor) (list LocationList, err error) {
+func (l LocationService) List(ctx context.Context, cursor core.Cursor) (list List[Location], err error) {
 	list.Pagination, err = l.client.List(ctx, getLocationsPath(), cursor, &list.Items)
 	return
 }
 
-func (l LocationService) Get(ctx context.Context, id int) (location Location, err error) {
-	err = l.client.Get(ctx, getSpecificLocationPath(id), &location)
+type LocationGetReq struct {
+	ID uint `json:"-"`
+}
+
+func (l LocationService) Get(ctx context.Context, req LocationGetReq) (location Location, err error) {
+	err = l.client.Get(ctx, getSpecificLocationPath(req.ID), &location)
 	return
 }
 
@@ -43,6 +42,6 @@ func getLocationsPath() string {
 	return locationsSegment
 }
 
-func getSpecificLocationPath(locationID int) string {
-	return goclient.Join(locationsSegment, locationID)
+func getSpecificLocationPath(locationID uint) string {
+	return core.Join(locationsSegment, locationID)
 }

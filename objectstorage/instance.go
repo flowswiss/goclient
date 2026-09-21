@@ -3,8 +3,8 @@ package objectstorage
 import (
 	"context"
 
-	"github.com/flowswiss/goclient"
-	"github.com/flowswiss/goclient/common"
+	"github.com/flowswiss/goclient/v2/common"
+	"github.com/flowswiss/goclient/v2/core"
 )
 
 type Instance struct {
@@ -13,37 +13,36 @@ type Instance struct {
 	Location common.Location `json:"location"`
 }
 
-type InstanceList struct {
-	Items      []Instance
-	Pagination goclient.Pagination
-}
-
-type InstanceCreate struct {
-	LocationID int `json:"location_id"`
-}
-
 type InstanceService struct {
-	client goclient.Client
+	client *core.Client
 }
 
-func NewInstanceService(client goclient.Client) InstanceService {
-	return InstanceService{
+func NewInstanceService(client *core.Client) *InstanceService {
+	return &InstanceService{
 		client: client,
 	}
 }
 
-func (i InstanceService) List(ctx context.Context, cursor goclient.Cursor) (list InstanceList, err error) {
+func (i InstanceService) List(ctx context.Context, cursor core.Cursor) (list common.List[Instance], err error) {
 	list.Pagination, err = i.client.List(ctx, getInstancePath(), cursor, &list.Items)
 	return
 }
 
-func (i InstanceService) Create(ctx context.Context, body InstanceCreate) (instance Instance, err error) {
-	err = i.client.Create(ctx, getInstancePath(), body, &instance)
+type InstanceCreateReq struct {
+	LocationID int `json:"location_id"`
+}
+
+func (i InstanceService) Create(ctx context.Context, req InstanceCreateReq) (instance Instance, err error) {
+	err = i.client.Create(ctx, getInstancePath(), req, &instance)
 	return
 }
 
-func (i InstanceService) Delete(ctx context.Context, id int) (err error) {
-	err = i.client.Delete(ctx, getSpecificInstancePath(id))
+type InstanceDeleteReq struct {
+	ID uint `json:"-"`
+}
+
+func (i InstanceService) Delete(ctx context.Context, req InstanceDeleteReq) (err error) {
+	err = i.client.Delete(ctx, getSpecificInstancePath(req.ID))
 	return
 }
 
@@ -53,6 +52,6 @@ func getInstancePath() string {
 	return instanceSegment
 }
 
-func getSpecificInstancePath(loadBalancerID int) string {
-	return goclient.Join(instanceSegment, loadBalancerID)
+func getSpecificInstancePath(loadBalancerID uint) string {
+	return core.Join(instanceSegment, loadBalancerID)
 }

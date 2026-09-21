@@ -8,7 +8,7 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/flowswiss/goclient"
+	"github.com/flowswiss/goclient/v2/core"
 )
 
 var ErrOrderFailed = errors.New("order failed")
@@ -31,7 +31,7 @@ type Ordering struct {
 	Ref string `json:"ref"`
 }
 
-func (o Ordering) ExtractIdentifier() (int, error) {
+func (o Ordering) ExtractIdentifier() (uint, error) {
 	data := orderIdentifierRegex.FindStringSubmatch(o.Ref)
 
 	if len(data) < 2 {
@@ -43,7 +43,7 @@ func (o Ordering) ExtractIdentifier() (int, error) {
 		return 0, err
 	}
 
-	return int(id), nil
+	return uint(id), nil
 }
 
 type Order struct {
@@ -54,15 +54,19 @@ type Order struct {
 }
 
 type OrderService struct {
-	client goclient.Client
+	client *core.Client
 }
 
-func NewOrderService(client goclient.Client) OrderService {
-	return OrderService{client: client}
+func NewOrderService(client *core.Client) *OrderService {
+	return &OrderService{client: client}
 }
 
-func (o OrderService) Get(ctx context.Context, id int) (order Order, err error) {
-	err = o.client.Get(ctx, getSpecificOrderPath(id), &order)
+type OrderGetReq struct {
+	ID uint `json:"-"`
+}
+
+func (o OrderService) Get(ctx context.Context, req OrderGetReq) (order Order, err error) {
+	err = o.client.Get(ctx, getSpecificOrderPath(req.ID), &order)
 	return
 }
 
@@ -82,7 +86,7 @@ func (o OrderService) WaitUntilProcessed(ctx context.Context, ordering Ordering)
 	defer ticker.Stop()
 
 	for {
-		order, err = o.Get(ctx, id)
+		order, err = o.Get(ctx, OrderGetReq{ID: id})
 		if err != nil {
 			return Order{}, fmt.Errorf("fetch order: %w", err)
 		}
@@ -106,6 +110,6 @@ func (o OrderService) WaitUntilProcessed(ctx context.Context, ordering Ordering)
 
 const ordersSegment = "/v4/orders"
 
-func getSpecificOrderPath(orderID int) string {
-	return goclient.Join(ordersSegment, orderID)
+func getSpecificOrderPath(orderID uint) string {
+	return core.Join(ordersSegment, orderID)
 }

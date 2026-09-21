@@ -5,7 +5,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/flowswiss/goclient/common"
+	"github.com/flowswiss/goclient/v2/common"
 )
 
 func TestTimeFormat(t *testing.T) {

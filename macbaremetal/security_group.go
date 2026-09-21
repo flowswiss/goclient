@@ -3,67 +3,73 @@ package macbaremetal
 import (
 	"context"
 
-	"github.com/flowswiss/goclient"
+	"github.com/flowswiss/goclient/v2/common"
+	"github.com/flowswiss/goclient/v2/core"
 )
 
-type SecurityGroup struct {
-	ID          int     `json:"id"`
-	Name        string  `json:"name"`
-	Description string  `json:"description"`
-	Default     bool    `json:"default"`
-	Network     Network `json:"network"`
+type SecurityGroupService struct {
+	client *core.Client
 }
 
-type SecurityGroupList struct {
-	Items      []SecurityGroup
-	Pagination goclient.Pagination
+func NewSecurityGroupService(client *core.Client) *SecurityGroupService {
+	return &SecurityGroupService{client: client}
 }
 
-type SecurityGroupCreate struct {
+func (s SecurityGroupService) List(ctx context.Context, cursor core.Cursor) (
+	list common.List[SecurityGroup],
+	err error,
+) {
+	list.Pagination, err = s.client.List(ctx, getSecurityGroupsPath(), cursor, &list.Items)
+	return
+}
+
+type SecurityGroupCreateReq struct {
 	Name        string `json:"name"`
 	Description string `json:"description"`
 	NetworkID   int    `json:"network_id"`
 }
 
-type SecurityGroupUpdate struct {
-	Name        string `json:"name"`
-	Description string `json:"description"`
-}
-
-type SecurityGroupService struct {
-	client goclient.Client
-}
-
-func NewSecurityGroupService(client goclient.Client) SecurityGroupService {
-	return SecurityGroupService{client: client}
-}
-
-func (s SecurityGroupService) Rules(securityGroupID int) SecurityGroupRuleService {
-	return NewSecurityGroupRuleService(s.client, securityGroupID)
-}
-
-func (s SecurityGroupService) List(ctx context.Context, cursor goclient.Cursor) (list SecurityGroupList, err error) {
-	list.Pagination, err = s.client.List(ctx, getSecurityGroupsPath(), cursor, &list.Items)
+func (s SecurityGroupService) Create(ctx context.Context, req SecurityGroupCreateReq) (
+	securityGroup SecurityGroup,
+	err error,
+) {
+	err = s.client.Create(ctx, getSecurityGroupsPath(), req, &securityGroup)
 	return
 }
 
-func (s SecurityGroupService) Create(ctx context.Context, body SecurityGroupCreate) (securityGroup SecurityGroup, err error) {
-	err = s.client.Create(ctx, getSecurityGroupsPath(), body, &securityGroup)
+type SecurityGroupGetReq struct {
+	ID uint `json:"-"`
+}
+
+func (s SecurityGroupService) Get(ctx context.Context, req SecurityGroupGetReq) (
+	securityGroup SecurityGroup,
+	err error,
+) {
+	err = s.client.Get(ctx, getSpecificSecurityGroupPath(req.ID), &securityGroup)
 	return
 }
 
-func (s SecurityGroupService) Get(ctx context.Context, id int) (securityGroup SecurityGroup, err error) {
-	err = s.client.Get(ctx, getSpecificSecurityGroupPath(id), &securityGroup)
+type SecurityGroupUpdateReq struct {
+	ID uint `json:"-"`
+
+	Name        *string `json:"name,omitempty"`
+	Description *string `json:"description,omitempty"`
+}
+
+func (s SecurityGroupService) Update(ctx context.Context, req SecurityGroupUpdateReq) (
+	securityGroup SecurityGroup,
+	err error,
+) {
+	err = s.client.Update(ctx, getSpecificSecurityGroupPath(req.ID), req, &securityGroup)
 	return
 }
 
-func (s SecurityGroupService) Update(ctx context.Context, id int, body SecurityGroupUpdate) (securityGroup SecurityGroup, err error) {
-	err = s.client.Update(ctx, getSpecificSecurityGroupPath(id), body, &securityGroup)
-	return
+type SecurityGroupDeleteReq struct {
+	ID uint `json:"-"`
 }
 
-func (s SecurityGroupService) Delete(ctx context.Context, id int) (err error) {
-	err = s.client.Delete(ctx, getSpecificSecurityGroupPath(id))
+func (s SecurityGroupService) Delete(ctx context.Context, req SecurityGroupDeleteReq) (err error) {
+	err = s.client.Delete(ctx, getSpecificSecurityGroupPath(req.ID))
 	return
 }
 
@@ -73,6 +79,6 @@ func getSecurityGroupsPath() string {
 	return securityGroupsSegment
 }
 
-func getSpecificSecurityGroupPath(id int) string {
-	return goclient.Join(securityGroupsSegment, id)
+func getSpecificSecurityGroupPath(id uint) string {
+	return core.Join(securityGroupsSegment, id)
 }

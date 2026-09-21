@@ -6,7 +6,7 @@ or [my.cloudbit.ch/#/doc](https://my.cloudbit.ch/#/doc).
 
 ## Installation
 ```
-go get github.com/flowswiss/goclient
+go get github.com/flowswiss/goclient/v2
 ```
 
 ## Example
@@ -14,30 +14,28 @@ go get github.com/flowswiss/goclient
 package main
 
 import (
-  "context"
-  "fmt"
+	"context"
+	"fmt"
 
-  "github.com/flowswiss/goclient"
-  "github.com/flowswiss/goclient/compute"
+	"github.com/flowswiss/goclient/v2"
+	"github.com/flowswiss/goclient/v2/core"
 )
 
 func main() {
-  client := goclient.NewClient(goclient.WithToken("your-application-token"))
-  
-  service := compute.NewServerService(client)
+	client := goclient.WithToken("your-application-token")
 
-  res, err := service.List(context.Background(), goclient.Cursor{
-    Page:    1,
-    PerPage: 5,
-  })
+	res, err := client.Compute.Server.List(context.Background(), core.Cursor{
+		Page:    1,
+		PerPage: 5,
+	})
 
-  if err != nil {
-    fmt.Println("error listing servers: ", err)
-  }
+	if err != nil {
+		fmt.Println("error listing servers: ", err)
+	}
 
-  for _, server := range res.Items {
-    fmt.Println("found server with id ", server.Id)
-  }
+	for _, server := range res.Items {
+		fmt.Println("found server with id ", server.ID)
+	}
 }
 ```
 

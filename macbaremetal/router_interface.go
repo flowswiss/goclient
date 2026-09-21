@@ -3,36 +3,34 @@ package macbaremetal
 import (
 	"context"
 
-	"github.com/flowswiss/goclient"
+	"github.com/flowswiss/goclient/v2/common"
+	"github.com/flowswiss/goclient/v2/core"
 )
 
-type RouterInterface struct {
-	ID        int     `json:"id"`
-	PrivateIP string  `json:"private_ip"`
-	Network   Network `json:"network"`
-}
-
-type RouterInterfaceList struct {
-	Items      []RouterInterface
-	Pagination goclient.Pagination
-}
-
 type RouterInterfaceService struct {
-	client   goclient.Client
-	routerID int
+	client *core.Client
 }
 
-func NewRouterInterfaceService(client goclient.Client, routerID int) RouterInterfaceService {
-	return RouterInterfaceService{client: client, routerID: routerID}
+func NewRouterInterfaceService(client *core.Client) *RouterInterfaceService {
+	return &RouterInterfaceService{client: client}
 }
 
-func (r RouterInterfaceService) List(ctx context.Context, cursor goclient.Cursor) (list RouterInterfaceList, err error) {
-	list.Pagination, err = r.client.List(ctx, getRouterInterfacesPath(r.routerID), cursor, &list.Items)
+type RouterInterfaceListReq struct {
+	RouterID uint `json:"-"`
+
+	Cursor core.Cursor `json:"-"`
+}
+
+func (r RouterInterfaceService) List(ctx context.Context, req RouterInterfaceListReq) (
+	list common.List[RouterInterface],
+	err error,
+) {
+	list.Pagination, err = r.client.List(ctx, getRouterInterfacesPath(req.RouterID), req.Cursor, &list.Items)
 	return
 }
 
 const routerInterfacesSegment = "router-interfaces"
 
-func getRouterInterfacesPath(id int) string {
-	return goclient.Join(routersSegment, id, routerInterfacesSegment)
+func getRouterInterfacesPath(id uint) string {
+	return core.Join(routersSegment, id, routerInterfacesSegment)
 }

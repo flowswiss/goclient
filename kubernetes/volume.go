@@ -3,41 +3,50 @@ package kubernetes
 import (
 	"context"
 
-	"github.com/flowswiss/goclient"
-	"github.com/flowswiss/goclient/compute"
+	"github.com/flowswiss/goclient/v2/common"
+	"github.com/flowswiss/goclient/v2/compute"
+	"github.com/flowswiss/goclient/v2/core"
 )
 
 type Volume = compute.Volume
-type VolumeList = compute.VolumeList
 
 type VolumeService struct {
-	client    goclient.Client
-	clusterID int
+	client *core.Client
 }
 
-func NewVolumeService(client goclient.Client, clusterID int) VolumeService {
-	return VolumeService{
-		client:    client,
-		clusterID: clusterID,
+func NewVolumeService(client *core.Client) *VolumeService {
+	return &VolumeService{
+		client: client,
 	}
 }
 
-func (v VolumeService) List(ctx context.Context, cursor goclient.Cursor) (list VolumeList, err error) {
-	list.Pagination, err = v.client.List(ctx, getVolumePath(v.clusterID), cursor, &list.Items)
+type VolumeListReq struct {
+	ClusterID uint `json:"-"`
+
+	Cursor core.Cursor `json:"-"`
+}
+
+func (v VolumeService) List(ctx context.Context, req VolumeListReq) (list common.List[Volume], err error) {
+	list.Pagination, err = v.client.List(ctx, getVolumePath(req.ClusterID), req.Cursor, &list.Items)
 	return
 }
 
-func (v VolumeService) Delete(ctx context.Context, id int) (err error) {
-	err = v.client.Delete(ctx, getSpecificVolumePath(v.clusterID, id))
+type VolumeDeleteReq struct {
+	ClusterID uint `json:"-"`
+	VolumeID  uint `json:"-"`
+}
+
+func (v VolumeService) Delete(ctx context.Context, req VolumeDeleteReq) (err error) {
+	err = v.client.Delete(ctx, getSpecificVolumePath(req.ClusterID, req.VolumeID))
 	return
 }
 
 const volumeSegment = "volumes"
 
-func getVolumePath(clusterID int) string {
-	return goclient.Join(clusterSegment, clusterID, volumeSegment)
+func getVolumePath(clusterID uint) string {
+	return core.Join(clusterSegment, clusterID, volumeSegment)
 }
 
-func getSpecificVolumePath(clusterID, volumeID int) string {
-	return goclient.Join(clusterSegment, clusterID, volumeSegment, volumeID)
+func getSpecificVolumePath(clusterID, volumeID uint) string {
+	return core.Join(clusterSegment, clusterID, volumeSegment, volumeID)
 }

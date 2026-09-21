@@ -3,7 +3,7 @@ package common
 import (
 	"context"
 
-	"github.com/flowswiss/goclient"
+	"github.com/flowswiss/goclient/v2/core"
 )
 
 type Module struct {
@@ -14,26 +14,25 @@ type Module struct {
 	Locations []Location `json:"locations"`
 }
 
-type ModuleList struct {
-	goclient.Pagination
-	Items []Module
-}
-
 type ModuleService struct {
-	client goclient.Client
+	client *core.Client
 }
 
-func NewModuleService(client goclient.Client) ModuleService {
-	return ModuleService{client: client}
+func NewModuleService(client *core.Client) *ModuleService {
+	return &ModuleService{client: client}
 }
 
-func (l ModuleService) List(ctx context.Context, cursor goclient.Cursor) (list ModuleList, err error) {
+func (l ModuleService) List(ctx context.Context, cursor core.Cursor) (list List[Module], err error) {
 	list.Pagination, err = l.client.List(ctx, getModulesPath(), cursor, &list.Items)
 	return
 }
 
-func (l ModuleService) Get(ctx context.Context, id int) (module Module, err error) {
-	err = l.client.Get(ctx, getSpecificModulePath(id), &module)
+type ModuleGetReq struct {
+	ID uint `json:"-"`
+}
+
+func (l ModuleService) Get(ctx context.Context, req ModuleGetReq) (module Module, err error) {
+	err = l.client.Get(ctx, getSpecificModulePath(req.ID), &module)
 	return
 }
 
@@ -43,6 +42,6 @@ func getModulesPath() string {
 	return modulesSegment
 }
 
-func getSpecificModulePath(moduleID int) string {
-	return goclient.Join(modulesSegment, moduleID)
+func getSpecificModulePath(moduleID uint) string {
+	return core.Join(modulesSegment, moduleID)
 }

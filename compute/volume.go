@@ -3,44 +3,33 @@ package compute
 import (
 	"context"
 
-	"github.com/flowswiss/goclient"
-	"github.com/flowswiss/goclient/common"
+	"github.com/flowswiss/goclient/v2/common"
+	"github.com/flowswiss/goclient/v2/core"
 )
 
-const (
-	VolumeStatusAvailable = iota + 1
-	VolumeStatusInUse
-	VolumeStatusWorking
-	VolumeStatusError
-)
-
-type VolumeStatus struct {
-	ID   int    `json:"id"`
-	Name string `json:"name"`
-	Key  string `json:"key"`
+type VolumeService struct {
+	client *core.Client
 }
 
-type Volume struct {
-	ID           int             `json:"id"`
-	Product      common.Product  `json:"product"`
-	Location     common.Location `json:"location"`
-	Status       VolumeStatus    `json:"status"`
-	Name         string          `json:"name"`
-	Size         int             `json:"size"`
-	SerialNumber string          `json:"serial"`
-	Snapshots    int             `json:"snapshots"`
-	Bootable     bool            `json:"bootable"`
-	RootVolume   bool            `json:"root_volume"`
-	AttachedTo   Server          `json:"instance"`
-	CreatedAt    common.Time     `json:"created_at"`
+func NewVolumeService(client *core.Client) *VolumeService {
+	return &VolumeService{client: client}
 }
 
-type VolumeList struct {
-	Items      []Volume
-	Pagination goclient.Pagination
+func (v VolumeService) List(ctx context.Context, cursor core.Cursor) (list common.List[Volume], err error) {
+	list.Pagination, err = v.client.List(ctx, getVolumesPath(), cursor, &list.Items)
+	return
 }
 
-type VolumeCreate struct {
+type VolumeGetReq struct {
+	ID uint `json:"-"`
+}
+
+func (v VolumeService) Get(ctx context.Context, req VolumeGetReq) (volume Volume, err error) {
+	err = v.client.Get(ctx, getSpecificVolumePath(req.ID), &volume)
+	return
+}
+
+type VolumeCreateReq struct {
 	Name       string `json:"name"`
 	Size       int    `json:"size"`
 	LocationID int    `json:"location_id"`
@@ -48,72 +37,71 @@ type VolumeCreate struct {
 	InstanceID int    `json:"instance_id,omitempty"`
 }
 
-type VolumeUpdate struct {
+func (v VolumeService) Create(ctx context.Context, req VolumeCreateReq) (volume Volume, err error) {
+	err = v.client.Create(ctx, getVolumesPath(), req, &volume)
+	return
+}
+
+type VolumeUpdateReq struct {
+	ID uint `json:"-"`
+
 	Name string `json:"name"`
 }
 
-type VolumeAttach struct {
+func (v VolumeService) Update(ctx context.Context, req VolumeUpdateReq) (volume Volume, err error) {
+	err = v.client.Update(ctx, getSpecificVolumePath(req.ID), req, &volume)
+	return
+}
+
+type VolumeDeleteReq struct {
+	ID uint `json:"-"`
+}
+
+func (v VolumeService) Delete(ctx context.Context, req VolumeDeleteReq) (err error) {
+	err = v.client.Delete(ctx, getSpecificVolumePath(req.ID))
+	return
+}
+
+type VolumeAttachReq struct {
+	VolumeID uint `json:"-"`
+
 	InstanceID int `json:"instance_id"`
 }
 
-type VolumeRevert struct {
+func (v VolumeService) Attach(ctx context.Context, req VolumeAttachReq) (volume Volume, err error) {
+	err = v.client.Create(ctx, getVolumeInstancesPath(req.VolumeID), req, &volume)
+	return
+}
+
+type VolumeDetachReq struct {
+	VolumeID   uint `json:"-"`
+	InstanceID uint `json:"-"`
+}
+
+func (v VolumeService) Detach(ctx context.Context, req VolumeDetachReq) (err error) {
+	err = v.client.Delete(ctx, getSpecificVolumeInstancePath(req.VolumeID, req.InstanceID))
+	return
+}
+
+type VolumeRevertReq struct {
+	VolumeID uint `json:"-"`
+
 	SnapshotID int `json:"snapshot_id"`
 }
 
-type VolumeExpand struct {
+func (v VolumeService) Revert(ctx context.Context, req VolumeRevertReq) (volume Volume, err error) {
+	err = v.client.Create(ctx, getVolumeRevertPath(req.VolumeID), req, &volume)
+	return
+}
+
+type VolumeExpandReq struct {
+	VolumeID uint `json:"-"`
+
 	Size int `json:"size"`
 }
 
-type VolumeService struct {
-	client goclient.Client
-}
-
-func NewVolumeService(client goclient.Client) VolumeService {
-	return VolumeService{client: client}
-}
-
-func (v VolumeService) List(ctx context.Context, cursor goclient.Cursor) (list VolumeList, err error) {
-	list.Pagination, err = v.client.List(ctx, getVolumesPath(), cursor, &list.Items)
-	return
-}
-
-func (v VolumeService) Get(ctx context.Context, id int) (volume Volume, err error) {
-	err = v.client.Get(ctx, getSpecificVolumePath(id), &volume)
-	return
-}
-
-func (v VolumeService) Create(ctx context.Context, body VolumeCreate) (volume Volume, err error) {
-	err = v.client.Create(ctx, getVolumesPath(), body, &volume)
-	return
-}
-
-func (v VolumeService) Update(ctx context.Context, id int, body VolumeUpdate) (volume Volume, err error) {
-	err = v.client.Update(ctx, getSpecificVolumePath(id), body, &volume)
-	return
-}
-
-func (v VolumeService) Delete(ctx context.Context, id int) (err error) {
-	err = v.client.Delete(ctx, getSpecificVolumePath(id))
-	return
-}
-
-func (v VolumeService) Attach(ctx context.Context, id int, body VolumeAttach) (volume Volume, err error) {
-	err = v.client.Create(ctx, getVolumeInstancesPath(id), body, &volume)
-	return
-}
-
-func (v VolumeService) Detach(ctx context.Context, id int, instanceID int) (err error) {
-	err = v.client.Delete(ctx, getSpecificVolumeInstancePath(id, instanceID))
-	return
-}
-
-func (v VolumeService) Revert(ctx context.Context, id int, body VolumeRevert) (volume Volume, err error) {
-	err = v.client.Create(ctx, getVolumeRevertPath(id), body, &volume)
-	return
-}
-
-func (v VolumeService) Expand(ctx context.Context, id int, body VolumeExpand) (volume Volume, err error) {
-	err = v.client.Create(ctx, getVolumeUpgradePath(id), body, &volume)
+func (v VolumeService) Expand(ctx context.Context, req VolumeExpandReq) (volume Volume, err error) {
+	err = v.client.Create(ctx, getVolumeUpgradePath(req.VolumeID), req, &volume)
 	return
 }
 
@@ -128,22 +116,22 @@ func getVolumesPath() string {
 	return volumesSegment
 }
 
-func getSpecificVolumePath(volumeID int) string {
-	return goclient.Join(volumesSegment, volumeID)
+func getSpecificVolumePath(volumeID uint) string {
+	return core.Join(volumesSegment, volumeID)
 }
 
-func getVolumeInstancesPath(volumeID int) string {
-	return goclient.Join(volumesSegment, volumeID, volumeInstancesSegment)
+func getVolumeInstancesPath(volumeID uint) string {
+	return core.Join(volumesSegment, volumeID, volumeInstancesSegment)
 }
 
-func getSpecificVolumeInstancePath(volumeID, instanceID int) string {
-	return goclient.Join(volumesSegment, volumeID, volumeInstancesSegment, instanceID)
+func getSpecificVolumeInstancePath(volumeID, instanceID uint) string {
+	return core.Join(volumesSegment, volumeID, volumeInstancesSegment, instanceID)
 }
 
-func getVolumeRevertPath(volumeID int) string {
-	return goclient.Join(volumesSegment, volumeID, volumeRevertSegment)
+func getVolumeRevertPath(volumeID uint) string {
+	return core.Join(volumesSegment, volumeID, volumeRevertSegment)
 }
 
-func getVolumeUpgradePath(volumeID int) string {
-	return goclient.Join(volumesSegment, volumeID, volumeUpgradeSegment)
+func getVolumeUpgradePath(volumeID uint) string {
+	return core.Join(volumesSegment, volumeID, volumeUpgradeSegment)
 }

@@ -7,15 +7,15 @@ import (
 	"testing"
 	"time"
 
-	"github.com/flowswiss/goclient"
-	"github.com/flowswiss/goclient/common"
-	"github.com/flowswiss/goclient/internal/tests"
+	"github.com/flowswiss/goclient/v2/common"
+	"github.com/flowswiss/goclient/v2/core"
+	"github.com/flowswiss/goclient/v2/testutil"
 )
 
 func TestModuleService(t *testing.T) {
-	tests.Handle("/v4/entities/modules", http.MethodGet, tests.StaticResponse(http.StatusOK, `[`+ModuleData+`]`))
-	tests.Handle("/v4/entities/modules/{id:\\d+}", http.MethodGet, tests.StaticResponse(http.StatusOK, ModuleData))
-	client := tests.Client()
+	testutil.Handle("/v4/entities/modules", http.MethodGet, testutil.StaticResponse(http.StatusOK, `[`+ModuleData+`]`))
+	testutil.Handle("/v4/entities/modules/{id:\\d+}", http.MethodGet, testutil.StaticResponse(http.StatusOK, ModuleData))
+	client := testutil.Client()
 
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second)
 	defer cancel()
@@ -23,7 +23,7 @@ func TestModuleService(t *testing.T) {
 	service := common.NewModuleService(client)
 
 	t.Run("list", func(t *testing.T) {
-		modules, err := service.List(ctx, goclient.Cursor{})
+		modules, err := service.List(ctx, core.Cursor{})
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -34,7 +34,7 @@ func TestModuleService(t *testing.T) {
 	})
 
 	t.Run("get", func(t *testing.T) {
-		module, err := service.Get(ctx, 1)
+		module, err := service.Get(ctx, common.ModuleGetReq{ID: 1})
 		if err != nil {
 			t.Fatal(err)
 		}

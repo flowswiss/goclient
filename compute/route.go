@@ -3,55 +3,57 @@ package compute
 import (
 	"context"
 
-	"github.com/flowswiss/goclient"
+	"github.com/flowswiss/goclient/v2/common"
+	"github.com/flowswiss/goclient/v2/core"
 )
 
-type Route struct {
-	ID          int    `json:"id"`
-	Destination string `json:"destination"`
-	NextHop     string `json:"nexthop"`
-}
-
-type RouteList struct {
-	Items      []Route
-	Pagination goclient.Pagination
-}
-
-type RouteCreate struct {
-	Destination string `json:"destination"`
-	NextHop     string `json:"nexthop"`
-}
-
 type RouteService struct {
-	client   goclient.Client
-	routerID int
+	client *core.Client
 }
 
-func NewRouteService(client goclient.Client, routerID int) RouteService {
-	return RouteService{client: client, routerID: routerID}
+func NewRouteService(client *core.Client) *RouteService {
+	return &RouteService{client: client}
 }
 
-func (r RouteService) List(ctx context.Context, cursor goclient.Cursor) (list RouteList, err error) {
-	list.Pagination, err = r.client.List(ctx, getRoutesPath(r.routerID), cursor, &list.Items)
+type RouteListReq struct {
+	RouterID uint `json:"-"`
+
+	Cursor core.Cursor `json:"-"`
+}
+
+func (r RouteService) List(ctx context.Context, req RouteListReq) (list common.List[Route], err error) {
+	list.Pagination, err = r.client.List(ctx, getRoutesPath(req.RouterID), req.Cursor, &list.Items)
 	return
 }
 
-func (r RouteService) Create(ctx context.Context, body RouteCreate) (route Route, err error) {
-	err = r.client.Create(ctx, getRoutesPath(r.routerID), body, &route)
+type RouteCreateReq struct {
+	RouterID uint `json:"-"`
+
+	Destination string `json:"destination"`
+	NextHop     string `json:"nexthop"`
+}
+
+func (r RouteService) Create(ctx context.Context, req RouteCreateReq) (route Route, err error) {
+	err = r.client.Create(ctx, getRoutesPath(req.RouterID), req, &route)
 	return
 }
 
-func (r RouteService) Delete(ctx context.Context, id int) (err error) {
-	err = r.client.Delete(ctx, getSpecificRoutePath(r.routerID, id))
+type RouteDeleteReq struct {
+	RouterID uint `json:"-"`
+	RouteID  uint `json:"-"`
+}
+
+func (r RouteService) Delete(ctx context.Context, req RouteDeleteReq) (err error) {
+	err = r.client.Delete(ctx, getSpecificRoutePath(req.RouterID, req.RouteID))
 	return
 }
 
 const routesSegment = "routes"
 
-func getRoutesPath(routerID int) string {
-	return goclient.Join(routersSegment, routerID, routesSegment)
+func getRoutesPath(routerID uint) string {
+	return core.Join(routersSegment, routerID, routesSegment)
 }
 
-func getSpecificRoutePath(routerID, routeID int) string {
-	return goclient.Join(routersSegment, routerID, routesSegment, routeID)
+func getSpecificRoutePath(routerID, routeID uint) string {
+	return core.Join(routersSegment, routerID, routesSegment, routeID)
 }

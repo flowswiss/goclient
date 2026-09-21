@@ -3,63 +3,50 @@ package compute
 import (
 	"context"
 
-	"github.com/flowswiss/goclient"
-	"github.com/flowswiss/goclient/common"
+	"github.com/flowswiss/goclient/v2/common"
+	"github.com/flowswiss/goclient/v2/core"
 )
 
-type Certificate struct {
-	ID       int                `json:"id"`
-	Name     string             `json:"name"`
-	Location common.Location    `json:"location"`
-	Type     string             `json:"type"`
-	Details  CertificateDetails `json:"certificate"`
+type CertificateService struct {
+	client *core.Client
 }
 
-type CertificateDetails struct {
-	Subject   map[string]string `json:"subject"`
-	Issuer    map[string]string `json:"issuer"`
-	ValidFrom common.Time       `json:"valid_from"`
-	ValidTo   common.Time       `json:"valid_to"`
-	Serial    string            `json:"serial"`
+func NewCertificateService(client *core.Client) *CertificateService {
+	return &CertificateService{client: client}
 }
 
-type CertificateList struct {
-	Items      []Certificate
-	Pagination goclient.Pagination
+func (r CertificateService) List(ctx context.Context, cursor core.Cursor) (list common.List[Certificate], err error) {
+	list.Pagination, err = r.client.List(ctx, getCertificatesPath(), cursor, &list.Items)
+	return
 }
 
-type CertificateCreate struct {
+type CertificateGetReq struct {
+	ID uint `json:"-"`
+}
+
+func (r CertificateService) Get(ctx context.Context, req CertificateGetReq) (certificate Certificate, err error) {
+	err = r.client.Get(ctx, getSpecificCertificatePath(req.ID), &certificate)
+	return
+}
+
+type CertificateCreateReq struct {
 	Name        string `json:"name"`
 	LocationID  int    `json:"location_id"`
 	Certificate string `json:"certificate"`
 	PrivateKey  string `json:"private_key"`
 }
 
-type CertificateService struct {
-	client goclient.Client
-}
-
-func NewCertificateService(client goclient.Client) CertificateService {
-	return CertificateService{client: client}
-}
-
-func (r CertificateService) List(ctx context.Context, cursor goclient.Cursor) (list CertificateList, err error) {
-	list.Pagination, err = r.client.List(ctx, getCertificatesPath(), cursor, &list.Items)
+func (r CertificateService) Create(ctx context.Context, req CertificateCreateReq) (certificate Certificate, err error) {
+	err = r.client.Create(ctx, getCertificatesPath(), req, &certificate)
 	return
 }
 
-func (r CertificateService) Get(ctx context.Context, id int) (certificate Certificate, err error) {
-	err = r.client.Get(ctx, getSpecificCertificatePath(id), &certificate)
-	return
+type CertificateDeleteReq struct {
+	ID uint `json:"-"`
 }
 
-func (r CertificateService) Create(ctx context.Context, body CertificateCreate) (certificate Certificate, err error) {
-	err = r.client.Create(ctx, getCertificatesPath(), body, &certificate)
-	return
-}
-
-func (r CertificateService) Delete(ctx context.Context, id int) (err error) {
-	err = r.client.Delete(ctx, getSpecificCertificatePath(id))
+func (r CertificateService) Delete(ctx context.Context, req CertificateDeleteReq) (err error) {
+	err = r.client.Delete(ctx, getSpecificCertificatePath(req.ID))
 	return
 }
 
@@ -69,6 +56,6 @@ func getCertificatesPath() string {
 	return certificatesSegment
 }
 
-func getSpecificCertificatePath(certificateID int) string {
-	return goclient.Join(certificatesSegment, certificateID)
+func getSpecificCertificatePath(certificateID uint) string {
+	return core.Join(certificatesSegment, certificateID)
 }

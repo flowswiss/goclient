@@ -3,76 +3,59 @@ package compute
 import (
 	"context"
 
-	"github.com/flowswiss/goclient"
-	"github.com/flowswiss/goclient/common"
+	"github.com/flowswiss/goclient/v2/common"
+	"github.com/flowswiss/goclient/v2/core"
 )
-
-type Snapshot struct {
-	ID        int            `json:"id"`
-	Name      string         `json:"name"`
-	Size      int            `json:"size"`
-	Status    SnapshotStatus `json:"status"`
-	Volume    Volume         `json:"volume"`
-	Product   common.Product `json:"product"`
-	CreatedAt common.Time    `json:"created_at"`
-}
-
-const (
-	SnapshotStatusAvailable = 1
-	SnapshotStatusCreating  = 2
-	SnapshotStatusError     = 3
-)
-
-type SnapshotStatus struct {
-	ID   int    `json:"id"`
-	Name string `json:"name"`
-	Key  string `json:"key"`
-}
-
-type SnapshotList struct {
-	Items      []Snapshot
-	Pagination goclient.Pagination
-}
-
-type SnapshotCreate struct {
-	Name     string `json:"name"`
-	VolumeID int    `json:"volume_id"`
-}
-
-type SnapshotUpdate struct {
-	Name string `json:"name,omitempty"`
-}
 
 type SnapshotService struct {
-	client goclient.Client
+	client *core.Client
 }
 
-func NewSnapshotService(client goclient.Client) SnapshotService {
-	return SnapshotService{client: client}
+func NewSnapshotService(client *core.Client) *SnapshotService {
+	return &SnapshotService{client: client}
 }
 
-func (s SnapshotService) List(ctx context.Context, cursor goclient.Cursor) (list SnapshotList, err error) {
+func (s SnapshotService) List(ctx context.Context, cursor core.Cursor) (list common.List[Snapshot], err error) {
 	list.Pagination, err = s.client.List(ctx, getSnapshotsPath(), cursor, &list.Items)
 	return
 }
 
-func (s SnapshotService) Get(ctx context.Context, id int) (snapshot Snapshot, err error) {
-	err = s.client.Get(ctx, getSpecificSnapshotPath(id), &snapshot)
+type SnapshotGetReq struct {
+	ID uint `json:"-"`
+}
+
+func (s SnapshotService) Get(ctx context.Context, req SnapshotGetReq) (snapshot Snapshot, err error) {
+	err = s.client.Get(ctx, getSpecificSnapshotPath(req.ID), &snapshot)
 	return
 }
 
-func (s SnapshotService) Create(ctx context.Context, body SnapshotCreate) (snapshot Snapshot, err error) {
-	err = s.client.Create(ctx, getSnapshotsPath(), body, &snapshot)
+type SnapshotCreateReq struct {
+	Name     string `json:"name"`
+	VolumeID int    `json:"volume_id"`
+}
+
+func (s SnapshotService) Create(ctx context.Context, req SnapshotCreateReq) (snapshot Snapshot, err error) {
+	err = s.client.Create(ctx, getSnapshotsPath(), req, &snapshot)
 	return
 }
 
-func (s SnapshotService) Update(ctx context.Context, id int, body SnapshotUpdate) (snapshot Snapshot, err error) {
-	err = s.client.Update(ctx, getSpecificSnapshotPath(id), body, &snapshot)
+type SnapshotUpdateReq struct {
+	ID uint `json:"-"`
+
+	Name string `json:"name"`
+}
+
+func (s SnapshotService) Update(ctx context.Context, req SnapshotUpdateReq) (snapshot Snapshot, err error) {
+	err = s.client.Update(ctx, getSpecificSnapshotPath(req.ID), req, &snapshot)
 	return
 }
 
-func (s SnapshotService) Delete(ctx context.Context, id int) (err error) {
-	err = s.client.Delete(ctx, getSpecificSnapshotPath(id))
+type SnapshotDeleteReq struct {
+	ID uint `json:"-"`
+}
+
+func (s SnapshotService) Delete(ctx context.Context, req SnapshotDeleteReq) (err error) {
+	err = s.client.Delete(ctx, getSpecificSnapshotPath(req.ID))
 	return
 }
 
@@ -82,6 +65,6 @@ func getSnapshotsPath() string {
 	return snapshotsSegment
 }
 
-func getSpecificSnapshotPath(snapshotID int) string {
-	return goclient.Join(snapshotsSegment, snapshotID)
+func getSpecificSnapshotPath(snapshotID uint) string {
+	return core.Join(snapshotsSegment, snapshotID)
 }

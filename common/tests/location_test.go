@@ -7,15 +7,15 @@ import (
 	"testing"
 	"time"
 
-	"github.com/flowswiss/goclient"
-	"github.com/flowswiss/goclient/common"
-	"github.com/flowswiss/goclient/internal/tests"
+	"github.com/flowswiss/goclient/v2/common"
+	"github.com/flowswiss/goclient/v2/core"
+	"github.com/flowswiss/goclient/v2/testutil"
 )
 
 func TestLocationService(t *testing.T) {
-	tests.Handle("/v4/entities/locations", http.MethodGet, tests.StaticResponse(http.StatusOK, `[`+LocationData+`]`))
-	tests.Handle("/v4/entities/locations/{id:\\d+}", http.MethodGet, tests.StaticResponse(http.StatusOK, LocationData))
-	client := tests.Client()
+	testutil.Handle("/v4/entities/locations", http.MethodGet, testutil.StaticResponse(http.StatusOK, `[`+LocationData+`]`))
+	testutil.Handle("/v4/entities/locations/{id:\\d+}", http.MethodGet, testutil.StaticResponse(http.StatusOK, LocationData))
+	client := testutil.Client()
 
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second)
 	defer cancel()
@@ -23,7 +23,7 @@ func TestLocationService(t *testing.T) {
 	service := common.NewLocationService(client)
 
 	t.Run("list", func(t *testing.T) {
-		locations, err := service.List(ctx, goclient.Cursor{})
+		locations, err := service.List(ctx, core.Cursor{})
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -34,7 +34,7 @@ func TestLocationService(t *testing.T) {
 	})
 
 	t.Run("get", func(t *testing.T) {
-		location, err := service.Get(ctx, 1)
+		location, err := service.Get(ctx, common.LocationGetReq{ID: 1})
 		if err != nil {
 			t.Fatal(err)
 		}

@@ -3,7 +3,7 @@ package common
 import (
 	"context"
 
-	"github.com/flowswiss/goclient"
+	"github.com/flowswiss/goclient/v2/core"
 )
 
 type ProductType struct {
@@ -55,40 +55,40 @@ type BriefProduct struct {
 	Type string `json:"type"`
 }
 
-type ProductList struct {
-	Items      []Product
-	Pagination goclient.Pagination
-}
-
-type ProductTypeList struct {
-	Items      []ProductType
-	Pagination goclient.Pagination
-}
-
 type ProductService struct {
-	client goclient.Client
+	client *core.Client
 }
 
-func NewProductService(client goclient.Client) ProductService {
-	return ProductService{client: client}
+func NewProductService(client *core.Client) *ProductService {
+	return &ProductService{client: client}
 }
 
-func (p ProductService) List(ctx context.Context, cursor goclient.Cursor) (list ProductList, err error) {
+func (p ProductService) List(ctx context.Context, cursor core.Cursor) (list List[Product], err error) {
 	list.Pagination, err = p.client.List(ctx, getProductsPath(), cursor, &list.Items)
 	return
 }
 
-func (p ProductService) ListByType(ctx context.Context, productType string, cursor goclient.Cursor) (list ProductList, err error) {
-	list.Pagination, err = p.client.List(ctx, getProductsByTypePath(productType), cursor, &list.Items)
+type ProductListByTypeReq struct {
+	ProductType string `json:"-"`
+
+	Cursor core.Cursor `json:"-"`
+}
+
+func (p ProductService) ListByType(ctx context.Context, req ProductListByTypeReq) (list List[Product], err error) {
+	list.Pagination, err = p.client.List(ctx, getProductsByTypePath(req.ProductType), req.Cursor, &list.Items)
 	return
 }
 
-func (p ProductService) Get(ctx context.Context, id int) (product Product, err error) {
-	err = p.client.Get(ctx, getSpecificProductPath(id), &product)
+type ProductGetReq struct {
+	ID uint `json:"-"`
+}
+
+func (p ProductService) Get(ctx context.Context, req ProductGetReq) (product Product, err error) {
+	err = p.client.Get(ctx, getSpecificProductPath(req.ID), &product)
 	return
 }
 
-func (p ProductService) ListTypes(ctx context.Context, cursor goclient.Cursor) (list ProductTypeList, err error) {
+func (p ProductService) ListTypes(ctx context.Context, cursor core.Cursor) (list List[ProductType], err error) {
 	list.Pagination, err = p.client.List(ctx, getProductTypesPath(), cursor, &list.Items)
 	return
 }
@@ -103,11 +103,11 @@ func getProductsPath() string {
 }
 
 func getProductsByTypePath(productType string) string {
-	return goclient.Join(productsSegment, productType)
+	return core.Join(productsSegment, productType)
 }
 
-func getSpecificProductPath(id int) string {
-	return goclient.Join(productsSegment, id)
+func getSpecificProductPath(id uint) string {
+	return core.Join(productsSegment, id)
 }
 
 func getProductTypesPath() string {

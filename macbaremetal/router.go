@@ -3,54 +3,41 @@ package macbaremetal
 import (
 	"context"
 
-	"github.com/flowswiss/goclient"
-	"github.com/flowswiss/goclient/common"
+	"github.com/flowswiss/goclient/v2/common"
+	"github.com/flowswiss/goclient/v2/core"
 )
 
-type Router struct {
-	ID          int             `json:"id"`
-	Name        string          `json:"name"`
-	Description string          `json:"description"`
-	Location    common.Location `json:"location"`
-	Public      bool            `json:"public"`
-	SourceNAT   bool            `json:"snat"`
-	PublicIP    string          `json:"public_ip"`
-}
-
-type RouterList struct {
-	Items      []Router
-	Pagination goclient.Pagination
-}
-
-type RouterUpdate struct {
-	Name        string `json:"name"`
-	Description string `json:"description"`
-}
-
 type RouterService struct {
-	client goclient.Client
+	client *core.Client
 }
 
-func NewRouterService(client goclient.Client) RouterService {
-	return RouterService{client: client}
+func NewRouterService(client *core.Client) *RouterService {
+	return &RouterService{client: client}
 }
 
-func (r RouterService) RouterInterfaces(routerID int) RouterInterfaceService {
-	return NewRouterInterfaceService(r.client, routerID)
-}
-
-func (r RouterService) List(ctx context.Context, cursor goclient.Cursor) (list RouterList, err error) {
+func (r RouterService) List(ctx context.Context, cursor core.Cursor) (list common.List[Router], err error) {
 	list.Pagination, err = r.client.List(ctx, getRoutersPath(), cursor, &list.Items)
 	return
 }
 
-func (r RouterService) Get(ctx context.Context, id int) (router Router, err error) {
-	err = r.client.Get(ctx, getSpecificRouterPath(id), &router)
+type RouterGetReq struct {
+	ID uint `json:"-"`
+}
+
+func (r RouterService) Get(ctx context.Context, req RouterGetReq) (router Router, err error) {
+	err = r.client.Get(ctx, getSpecificRouterPath(req.ID), &router)
 	return
 }
 
-func (r RouterService) Update(ctx context.Context, id int, body RouterUpdate) (router Router, err error) {
-	err = r.client.Update(ctx, getSpecificRouterPath(id), body, &router)
+type RouterUpdateReq struct {
+	ID uint `json:"-"`
+
+	Name        *string `json:"name,omitempty"`
+	Description *string `json:"description,omitempty"`
+}
+
+func (r RouterService) Update(ctx context.Context, req RouterUpdateReq) (router Router, err error) {
+	err = r.client.Update(ctx, getSpecificRouterPath(req.ID), req, &router)
 	return
 }
 
@@ -60,6 +47,6 @@ func getRoutersPath() string {
 	return routersSegment
 }
 
-func getSpecificRouterPath(id int) string {
-	return goclient.Join(routersSegment, id)
+func getSpecificRouterPath(id uint) string {
+	return core.Join(routersSegment, id)
 }

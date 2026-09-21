@@ -3,84 +3,85 @@ package macbaremetal
 import (
 	"context"
 
-	"github.com/flowswiss/goclient"
-	"github.com/flowswiss/goclient/common"
+	"github.com/flowswiss/goclient/v2/common"
+	"github.com/flowswiss/goclient/v2/core"
 )
 
-type ElasticIPAttachment struct {
-	ID   int    `json:"id"`
-	Name string `json:"name"`
-	Type string `json:"type"`
-}
-
-type ElasticIP struct {
-	ID         int                 `json:"id"`
-	Product    common.BriefProduct `json:"product"`
-	Location   common.Location     `json:"location"`
-	Price      float64             `json:"price"`
-	PublicIP   string              `json:"public_ip"`
-	PrivateIP  string              `json:"private_ip"`
-	Attachment ElasticIPAttachment `json:"attached_device"`
-}
-
-type ElasticIPList struct {
-	Items      []ElasticIP
-	Pagination goclient.Pagination
-}
-
-type ElasticIPCreate struct {
-	LocationID int `json:"location_id,omitempty"`
-}
-
 type ElasticIPService struct {
-	client goclient.Client
+	client *core.Client
 }
 
-func NewElasticIPService(client goclient.Client) ElasticIPService {
-	return ElasticIPService{client: client}
+func NewElasticIPService(client *core.Client) *ElasticIPService {
+	return &ElasticIPService{client: client}
 }
 
-func (e ElasticIPService) List(ctx context.Context, cursor goclient.Cursor) (list ElasticIPList, err error) {
+func (e ElasticIPService) List(ctx context.Context, cursor core.Cursor) (list common.List[ElasticIP], err error) {
 	list.Pagination, err = e.client.List(ctx, getElasticIPsPath(), cursor, &list.Items)
 	return
 }
 
-func (e ElasticIPService) Create(ctx context.Context, body ElasticIPCreate) (elasticIP ElasticIP, err error) {
-	err = e.client.Create(ctx, getElasticIPsPath(), body, &elasticIP)
+type ElasticIPCreateReq struct {
+	LocationID int `json:"location_id,omitempty"`
+}
+
+func (e ElasticIPService) Create(ctx context.Context, req ElasticIPCreateReq) (elasticIP ElasticIP, err error) {
+	err = e.client.Create(ctx, getElasticIPsPath(), req, &elasticIP)
 	return
 }
 
-func (e ElasticIPService) Delete(ctx context.Context, id int) (err error) {
-	err = e.client.Delete(ctx, getSpecificElasticIPPath(id))
+type ElasticIPDeleteReq struct {
+	ID uint `json:"-"`
+}
+
+func (e ElasticIPService) Delete(ctx context.Context, req ElasticIPDeleteReq) (err error) {
+	err = e.client.Delete(ctx, getSpecificElasticIPPath(req.ID))
 	return
 }
 
-type ElasticIPAttach struct {
+type ElasticIPAttachmentService struct {
+	client *core.Client
+}
+
+func NewElasticIPAttachmentService(client *core.Client) *ElasticIPAttachmentService {
+	return &ElasticIPAttachmentService{client: client}
+}
+
+type ElasticIPAttachmentListReq struct {
+	DeviceID uint `json:"-"`
+
+	Cursor core.Cursor `json:"-"`
+}
+
+func (a ElasticIPAttachmentService) List(ctx context.Context, req ElasticIPAttachmentListReq) (
+	list common.List[ElasticIP],
+	err error,
+) {
+	list.Pagination, err = a.client.List(ctx, getAttachedElasticIPsPath(req.DeviceID), req.Cursor, &list.Items)
+	return
+}
+
+type ElasticIPAttachmentCreateReq struct {
+	DeviceID uint `json:"-"`
+
 	ElasticIPID        int `json:"elastic_ip_id"`
 	NetworkInterfaceID int `json:"network_interface_id"`
 }
 
-type AttachedElasticIPService struct {
-	client   goclient.Client
-	deviceID int
-}
-
-func NewAttachedElasticIPService(client goclient.Client, deviceID int) AttachedElasticIPService {
-	return AttachedElasticIPService{client: client, deviceID: deviceID}
-}
-
-func (a AttachedElasticIPService) List(ctx context.Context, cursor goclient.Cursor) (list ElasticIPList, err error) {
-	list.Pagination, err = a.client.List(ctx, getAttachedElasticIPsPath(a.deviceID), cursor, &list.Items)
+func (a ElasticIPAttachmentService) Create(ctx context.Context, req ElasticIPAttachmentCreateReq) (
+	elasticIP ElasticIP,
+	err error,
+) {
+	err = a.client.Create(ctx, getAttachedElasticIPsPath(req.DeviceID), req, &elasticIP)
 	return
 }
 
-func (a AttachedElasticIPService) Attach(ctx context.Context, body ElasticIPAttach) (elasticIP ElasticIP, err error) {
-	err = a.client.Create(ctx, getAttachedElasticIPsPath(a.deviceID), body, &elasticIP)
-	return
+type ElasticIPAttachmentDeleteReq struct {
+	DeviceID    uint `json:"-"`
+	ElasticIPID uint `json:"-"`
 }
 
-func (a AttachedElasticIPService) Detach(ctx context.Context, id int) (err error) {
-	err = a.client.Delete(ctx, getSpecificAttachedElasticIPPath(a.deviceID, id))
+func (a ElasticIPAttachmentService) Delete(ctx context.Context, req ElasticIPAttachmentDeleteReq) (err error) {
+	err = a.client.Delete(ctx, getSpecificAttachedElasticIPPath(req.DeviceID, req.ElasticIPID))
 	return
 }
 
@@ -93,14 +94,14 @@ func getElasticIPsPath() string {
 	return elasticIPsSegment
 }
 
-func getSpecificElasticIPPath(id int) string {
-	return goclient.Join(elasticIPsSegment, id)
+func getSpecificElasticIPPath(id uint) string {
+	return core.Join(elasticIPsSegment, id)
 }
 
-func getAttachedElasticIPsPath(deviceID int) string {
-	return goclient.Join(getSpecificDevicePath(deviceID), attachedElasticIPsSegment)
+func getAttachedElasticIPsPath(deviceID uint) string {
+	return core.Join(getSpecificDevicePath(deviceID), attachedElasticIPsSegment)
 }
 
-func getSpecificAttachedElasticIPPath(deviceID, elasticIPID int) string {
-	return goclient.Join(getAttachedElasticIPsPath(deviceID), elasticIPID)
+func getSpecificAttachedElasticIPPath(deviceID, elasticIPID uint) string {
+	return core.Join(getAttachedElasticIPsPath(deviceID), elasticIPID)
 }

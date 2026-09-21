@@ -3,73 +3,50 @@ package kubernetes
 import (
 	"context"
 
-	"github.com/flowswiss/goclient"
-	"github.com/flowswiss/goclient/common"
-	"github.com/flowswiss/goclient/compute"
+	"github.com/flowswiss/goclient/v2/common"
+	"github.com/flowswiss/goclient/v2/core"
 )
 
-type Node struct {
-	ID      int                             `json:"id"`
-	Name    string                          `json:"name"`
-	Roles   []NodeRole                      `json:"roles"`
-	Product common.Product                  `json:"product"`
-	Network compute.ServerNetworkAttachment `json:"network"`
-	Status  NodeStatus                      `json:"status"`
-}
-
-type NodeList struct {
-	Items      []Node
-	Pagination goclient.Pagination
-}
-
-type NodeRole struct {
-	ID   int    `json:"id"`
-	Key  string `json:"key"`
-	Name string `json:"name"`
-}
-
-type NodeStatus struct {
-	ID      int          `json:"id"`
-	Key     string       `json:"key"`
-	Name    string       `json:"name"`
-	Actions []NodeAction `json:"actions"`
-}
-
-type NodeAction struct {
-	ID      int    `json:"id"`
-	Name    string `json:"name"`
-	Command string `json:"command"`
-	Sorting int    `json:"sorting"`
-}
-
-type NodePerformAction struct {
-	Action string `json:"action"`
-}
-
 type NodeService struct {
-	client    goclient.Client
-	clusterID int
+	client *core.Client
 }
 
-func NewNodeService(client goclient.Client, clusterID int) NodeService {
-	return NodeService{
-		client:    client,
-		clusterID: clusterID,
+func NewNodeService(client *core.Client) *NodeService {
+	return &NodeService{
+		client: client,
 	}
 }
 
-func (n NodeService) List(ctx context.Context, cursor goclient.Cursor) (list NodeList, err error) {
-	list.Pagination, err = n.client.List(ctx, getNodePath(n.clusterID), cursor, &list.Items)
+type NodeListReq struct {
+	ClusterID uint `json:"-"`
+
+	Cursor core.Cursor `json:"-"`
+}
+
+func (n NodeService) List(ctx context.Context, req NodeListReq) (list common.List[Node], err error) {
+	list.Pagination, err = n.client.List(ctx, getNodePath(req.ClusterID), req.Cursor, &list.Items)
 	return
 }
 
-func (n NodeService) Delete(ctx context.Context, id int) (err error) {
-	err = n.client.Delete(ctx, getSpecificNodePath(n.clusterID, id))
+type NodeDeleteReq struct {
+	ClusterID uint `json:"-"`
+	NodeID    uint `json:"-"`
+}
+
+func (n NodeService) Delete(ctx context.Context, req NodeDeleteReq) (err error) {
+	err = n.client.Delete(ctx, getSpecificNodePath(req.ClusterID, req.NodeID))
 	return
 }
 
-func (n NodeService) PerformAction(ctx context.Context, id int, body NodePerformAction) (node Node, err error) {
-	err = n.client.Create(ctx, getNodeActionPath(n.clusterID, id), body, &node)
+type NodePerformReq struct {
+	ClusterID uint `json:"-"`
+	NodeID    uint `json:"-"`
+
+	Action string `json:"action"`
+}
+
+func (n NodeService) Perform(ctx context.Context, req NodePerformReq) (node Node, err error) {
+	err = n.client.Create(ctx, getNodeActionPath(req.ClusterID, req.NodeID), req, &node)
 	return
 }
 
@@ -78,14 +55,14 @@ const (
 	nodeActionSegment = "action"
 )
 
-func getNodePath(clusterID int) string {
-	return goclient.Join(clusterSegment, clusterID, nodeSegment)
+func getNodePath(clusterID uint) string {
+	return core.Join(clusterSegment, clusterID, nodeSegment)
 }
 
-func getSpecificNodePath(clusterID, nodeID int) string {
-	return goclient.Join(clusterSegment, clusterID, nodeSegment, nodeID)
+func getSpecificNodePath(clusterID, nodeID uint) string {
+	return core.Join(clusterSegment, clusterID, nodeSegment, nodeID)
 }
 
-func getNodeActionPath(clusterID, nodeID int) string {
-	return goclient.Join(clusterSegment, clusterID, nodeSegment, nodeID, nodeActionSegment)
+func getNodeActionPath(clusterID, nodeID uint) string {
+	return core.Join(clusterSegment, clusterID, nodeSegment, nodeID, nodeActionSegment)
 }
