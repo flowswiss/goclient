@@ -5,11 +5,11 @@ import (
 )
 
 const (
-	LoadBalancerStatusActive = iota + 1
-	LoadBalancerStatusDisabled
-	LoadBalancerStatusWorking
-	LoadBalancerStatusDegraded
-	LoadBalancerStatusError
+	LoadBalancerStatusActive   = 1
+	LoadBalancerStatusDisabled = 2
+	LoadBalancerStatusWorking  = 3
+	LoadBalancerStatusDegraded = 4
+	LoadBalancerStatusError    = 5
 
 	DirectionIngress = "ingress"
 	DirectionEgress  = "egress"
@@ -45,10 +45,10 @@ const (
 	SnapshotStatusCreating  = 2
 	SnapshotStatusError     = 3
 
-	VolumeStatusAvailable = iota + 1
-	VolumeStatusInUse
-	VolumeStatusWorking
-	VolumeStatusError
+	VolumeStatusAvailable = 1
+	VolumeStatusInUse     = 2
+	VolumeStatusWorking   = 3
+	VolumeStatusError     = 4
 )
 
 // Certificates

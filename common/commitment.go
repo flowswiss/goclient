@@ -47,8 +47,8 @@ func (c CommitmentService) List(ctx context.Context, cursor core.Cursor) (list L
 type CommitmentUpdateReq struct {
 	ID uint `json:"-"`
 
-	Renew          bool            `json:"renew"`
-	AdditionalData json.RawMessage `json:"additional_data"`
+	Renew          *bool           `json:"renew,omitempty"`
+	AdditionalData json.RawMessage `json:"additional_data,omitempty"`
 }
 
 func (c CommitmentService) Update(ctx context.Context, req CommitmentUpdateReq) (commitment Commitment, err error) {

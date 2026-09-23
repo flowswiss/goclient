@@ -30,10 +30,10 @@ func (r RouterService) Get(ctx context.Context, req RouterGetReq) (router Router
 }
 
 type RouterCreateReq struct {
-	Name        string `json:"name"`
-	Description string `json:"description"`
-	LocationID  int    `json:"location_id"`
-	Public      bool   `json:"public"`
+	Name        string  `json:"name"`
+	Description *string `json:"description,omitempty"`
+	LocationID  int     `json:"location_id"`
+	Public      bool    `json:"public"`
 }
 
 func (r RouterService) Create(ctx context.Context, req RouterCreateReq) (router Router, err error) {

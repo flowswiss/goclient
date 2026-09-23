@@ -33,8 +33,8 @@ type VolumeCreateReq struct {
 	Name       string `json:"name"`
 	Size       int    `json:"size"`
 	LocationID int    `json:"location_id"`
-	SnapshotID int    `json:"snapshot_id,omitempty"`
-	InstanceID int    `json:"instance_id,omitempty"`
+	SnapshotID *int   `json:"snapshot_id,omitempty"`
+	InstanceID *int   `json:"instance_id,omitempty"`
 }
 
 func (v VolumeService) Create(ctx context.Context, req VolumeCreateReq) (volume Volume, err error) {
@@ -45,7 +45,7 @@ func (v VolumeService) Create(ctx context.Context, req VolumeCreateReq) (volume 
 type VolumeUpdateReq struct {
 	ID uint `json:"-"`
 
-	Name string `json:"name"`
+	Name *string `json:"name,omitempty"`
 }
 
 func (v VolumeService) Update(ctx context.Context, req VolumeUpdateReq) (volume Volume, err error) {

@@ -21,7 +21,7 @@ func (e ElasticIPService) List(ctx context.Context, cursor core.Cursor) (list co
 }
 
 type ElasticIPCreateReq struct {
-	LocationID int `json:"location_id,omitempty"`
+	LocationID int `json:"location_id"`
 }
 
 func (e ElasticIPService) Create(ctx context.Context, req ElasticIPCreateReq) (elasticIP ElasticIP, err error) {

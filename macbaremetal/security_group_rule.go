@@ -32,13 +32,13 @@ func (s SecurityGroupRuleService) List(ctx context.Context, req SecurityGroupRul
 type SecurityGroupRuleCreateReq struct {
 	SecurityGroupID uint `json:"-"`
 
-	Direction string `json:"direction,omitempty"`
-	Protocol  int    `json:"protocol,omitempty"`
-	FromPort  int    `json:"from_port,omitempty"`
-	ToPort    int    `json:"to_port,omitempty"`
-	ICMPType  int    `json:"icmp_type,omitempty"`
-	ICMPCode  int    `json:"icmp_code,omitempty"`
-	IPRange   string `json:"ip_range,omitempty"`
+	Direction string  `json:"direction"`
+	Protocol  int     `json:"protocol"`
+	FromPort  *int    `json:"from_port,omitempty"`
+	ToPort    *int    `json:"to_port,omitempty"`
+	ICMPType  *int    `json:"icmp_type,omitempty"`
+	ICMPCode  *int    `json:"icmp_code,omitempty"`
+	IPRange   *string `json:"ip_range,omitempty"`
 }
 
 func (s SecurityGroupRuleService) Create(ctx context.Context, req SecurityGroupRuleCreateReq) (

@@ -33,16 +33,16 @@ func (s ServerService) Get(ctx context.Context, req ServerGetReq) (server Server
 }
 
 type ServerCreateReq struct {
-	Name             string `json:"name"`
-	LocationID       int    `json:"location_id"`
-	ImageID          int    `json:"image_id"`
-	ProductID        int    `json:"product_id"`
-	AttachExternalIP bool   `json:"attach_external_ip"`
-	NetworkID        int    `json:"network_id"`
-	PrivateIP        string `json:"private_ip,omitempty"`
-	KeyPairID        int    `json:"key_pair_id,omitempty"`
-	Password         string `json:"password,omitempty"`
-	CloudInit        string `json:"cloud_init,omitempty"`
+	Name             string  `json:"name"`
+	LocationID       int     `json:"location_id"`
+	ImageID          int     `json:"image_id"`
+	ProductID        int     `json:"product_id"`
+	AttachExternalIP bool    `json:"attach_external_ip"`
+	NetworkID        int     `json:"network_id"`
+	PrivateIP        *string `json:"private_ip,omitempty"`
+	KeyPairID        *int    `json:"key_pair_id,omitempty"`
+	Password         *string `json:"password,omitempty"`
+	CloudInit        *string `json:"cloud_init,omitempty"`
 }
 
 func (s ServerService) Create(ctx context.Context, req ServerCreateReq) (ordering common.Ordering, err error) {

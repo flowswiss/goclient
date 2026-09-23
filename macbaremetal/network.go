@@ -30,9 +30,9 @@ func (n NetworkService) Get(ctx context.Context, req NetworkGetReq) (network Net
 }
 
 type NetworkCreateReq struct {
-	Name        string `json:"name,omitempty"`
-	Description string `json:"description,omitempty"`
-	LocationID  int    `json:"location_id,omitempty"`
+	Name        string  `json:"name"`
+	Description *string `json:"description,omitempty"`
+	LocationID  int     `json:"location_id"`
 }
 
 func (n NetworkService) Create(ctx context.Context, req NetworkCreateReq) (network Network, err error) {

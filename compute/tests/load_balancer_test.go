@@ -68,7 +68,7 @@ func TestLoadBalancerService(t *testing.T) {
 
 	t.Run("update", func(t *testing.T) {
 		loadBalancer, err := service.Update(ctx, compute.LoadBalancerUpdateReq{
-			Name: "lb-test",
+			Name: new("lb-test"),
 		})
 
 		if err != nil {

@@ -51,7 +51,7 @@ func (d DeviceService) Create(ctx context.Context, req DeviceCreateReq) (order c
 type DeviceUpdateReq struct {
 	ID uint `json:"-"`
 
-	Name string `json:"name"`
+	Name *string `json:"name,omitempty"`
 }
 
 func (d DeviceService) Update(ctx context.Context, req DeviceUpdateReq) (device Device, err error) {

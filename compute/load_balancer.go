@@ -63,7 +63,7 @@ func (l LoadBalancerService) Perform(ctx context.Context, req LoadBalancerPerfor
 type LoadBalancerUpdateReq struct {
 	ID uint `json:"-"`
 
-	Name string `json:"name,omitempty"`
+	Name *string `json:"name,omitempty"`
 }
 
 func (l LoadBalancerService) Update(ctx context.Context, req LoadBalancerUpdateReq) (

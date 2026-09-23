@@ -42,7 +42,7 @@ func (s SnapshotService) Create(ctx context.Context, req SnapshotCreateReq) (sna
 type SnapshotUpdateReq struct {
 	ID uint `json:"-"`
 
-	Name string `json:"name"`
+	Name *string `json:"name,omitempty"`
 }
 
 func (s SnapshotService) Update(ctx context.Context, req SnapshotUpdateReq) (snapshot Snapshot, err error) {

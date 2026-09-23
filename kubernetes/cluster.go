@@ -53,7 +53,7 @@ func (c ClusterService) Get(ctx context.Context, req ClusterGetReq) (cluster Clu
 type ClusterUpdateReq struct {
 	ID uint `json:"-"`
 
-	Name string `json:"name"`
+	Name *string `json:"name,omitempty"`
 }
 
 func (c ClusterService) Update(ctx context.Context, req ClusterUpdateReq) (cluster Cluster, err error) {

@@ -8,13 +8,13 @@ import (
 )
 
 type LoadBalancerHealthCheckOptions struct {
-	TypeID             int    `json:"type_id"`
-	HTTPMethod         string `json:"http_method,omitempty"`
-	HTTPPath           string `json:"http_path,omitempty"`
-	Interval           int    `json:"interval,omitempty"`
-	Timeout            int    `json:"timeout,omitempty"`
-	HealthyThreshold   int    `json:"healthy_threshold,omitempty"`
-	UnhealthyThreshold int    `json:"unhealthy_threshold,omitempty"`
+	TypeID             int     `json:"type_id"`
+	HTTPMethod         *string `json:"http_method,omitempty"`
+	HTTPPath           *string `json:"http_path,omitempty"`
+	Interval           *int    `json:"interval,omitempty"`
+	Timeout            *int    `json:"timeout,omitempty"`
+	HealthyThreshold   *int    `json:"healthy_threshold,omitempty"`
+	UnhealthyThreshold *int    `json:"unhealthy_threshold,omitempty"`
 }
 
 type LoadBalancerPoolService struct {
@@ -55,14 +55,14 @@ func (l LoadBalancerPoolService) Get(ctx context.Context, req LoadBalancerPoolGe
 type LoadBalancerPoolCreateReq struct {
 	LoadBalancerID uint `json:"-"`
 
-	EntryProtocolID      int                            `json:"entry_protocol_id"`
-	TargetProtocolID     int                            `json:"target_protocol_id"`
-	CertificateID        int                            `json:"certificate_id,omitempty"`
-	EntryPort            int                            `json:"entry_port"`
-	BalancingAlgorithmID int                            `json:"balancing_algorithm_id"`
-	StickySession        bool                           `json:"sticky_session"`
-	Members              []LoadBalancerMemberCreateReq  `json:"members,omitempty"`
-	HealthCheck          LoadBalancerHealthCheckOptions `json:"health_check"`
+	EntryProtocolID      int                             `json:"entry_protocol_id"`
+	TargetProtocolID     int                             `json:"target_protocol_id"`
+	CertificateID        *int                            `json:"certificate_id,omitempty"`
+	EntryPort            int                             `json:"entry_port"`
+	BalancingAlgorithmID int                             `json:"balancing_algorithm_id"`
+	StickySession        bool                            `json:"sticky_session"`
+	Members              []LoadBalancerMemberCreateReq   `json:"members,omitempty"`
+	HealthCheck          *LoadBalancerHealthCheckOptions `json:"health_check,omitempty"`
 }
 
 func (l LoadBalancerPoolService) Create(ctx context.Context, req LoadBalancerPoolCreateReq) (
