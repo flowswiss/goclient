@@ -27,7 +27,7 @@ type VolumeListReq struct {
 }
 
 func (v VolumeService) List(ctx context.Context, req VolumeListReq) (list common.List[Volume], err error) {
-	list.Pagination, err = v.client.List(ctx, getVolumePath(req.ClusterID), req.Cursor, &list.Items)
+	list.Pagination, err = v.client.List(ctx, getVolumesPath(req.ClusterID), req.Cursor, &list.Items)
 	return
 }
 
@@ -41,12 +41,12 @@ func (v VolumeService) Delete(ctx context.Context, req VolumeDeleteReq) (err err
 	return
 }
 
-const volumeSegment = "volumes"
+const volumesSegment = "volumes"
 
-func getVolumePath(clusterID uint) string {
-	return core.Join(clusterSegment, clusterID, volumeSegment)
+func getVolumesPath(clusterID uint) string {
+	return core.Join(clustersSegment, clusterID, volumesSegment)
 }
 
 func getSpecificVolumePath(clusterID, volumeID uint) string {
-	return core.Join(clusterSegment, clusterID, volumeSegment, volumeID)
+	return core.Join(clustersSegment, clusterID, volumesSegment, volumeID)
 }

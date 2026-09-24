@@ -24,7 +24,7 @@ type NodeListReq struct {
 }
 
 func (n NodeService) List(ctx context.Context, req NodeListReq) (list common.List[Node], err error) {
-	list.Pagination, err = n.client.List(ctx, getNodePath(req.ClusterID), req.Cursor, &list.Items)
+	list.Pagination, err = n.client.List(ctx, getNodesPath(req.ClusterID), req.Cursor, &list.Items)
 	return
 }
 
@@ -51,18 +51,18 @@ func (n NodeService) Perform(ctx context.Context, req NodePerformReq) (node Node
 }
 
 const (
-	nodeSegment       = "nodes"
+	nodesSegment      = "nodes"
 	nodeActionSegment = "action"
 )
 
-func getNodePath(clusterID uint) string {
-	return core.Join(clusterSegment, clusterID, nodeSegment)
+func getNodesPath(clusterID uint) string {
+	return core.Join(clustersSegment, clusterID, nodesSegment)
 }
 
 func getSpecificNodePath(clusterID, nodeID uint) string {
-	return core.Join(clusterSegment, clusterID, nodeSegment, nodeID)
+	return core.Join(clustersSegment, clusterID, nodesSegment, nodeID)
 }
 
 func getNodeActionPath(clusterID, nodeID uint) string {
-	return core.Join(clusterSegment, clusterID, nodeSegment, nodeID, nodeActionSegment)
+	return core.Join(clustersSegment, clusterID, nodesSegment, nodeID, nodeActionSegment)
 }

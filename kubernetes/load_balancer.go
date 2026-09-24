@@ -37,5 +37,5 @@ func (v LoadBalancerService) List(ctx context.Context, req LoadBalancerListReq) 
 const loadBalancerSegment = "load-balancers"
 
 func getLoadBalancerPath(clusterID uint) string {
-	return core.Join(clusterSegment, clusterID, loadBalancerSegment)
+	return core.Join(clustersSegment, clusterID, loadBalancerSegment)
 }

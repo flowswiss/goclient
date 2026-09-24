@@ -7,6 +7,7 @@ type Service struct {
 	LoadBalancer *LoadBalancerService
 	Node         *NodeService
 	Volume       *VolumeService
+	Snapshot     *SnapshotService
 }
 
 func NewService(client *core.Client) *Service {
@@ -15,5 +16,6 @@ func NewService(client *core.Client) *Service {
 		LoadBalancer: NewLoadBalancerService(client),
 		Node:         NewNodeService(client),
 		Volume:       NewVolumeService(client),
+		Snapshot:     NewSnapshotService(client),
 	}
 }

@@ -10,7 +10,6 @@ import (
 
 type Commitment struct {
 	ID             int                 `json:"id"`
-	Type           string              `json:"type"`
 	Reference      CommitmentReference `json:"reference"`
 	StartDate      time.Time           `json:"start_date"`
 	EndDate        time.Time           `json:"end_date"`

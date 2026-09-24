@@ -19,7 +19,7 @@ func NewClusterService(client *core.Client) *ClusterService {
 }
 
 func (c ClusterService) List(ctx context.Context, cursor core.Cursor) (list common.List[Cluster], err error) {
-	list.Pagination, err = c.client.List(ctx, getClusterPath(), cursor, &list.Items)
+	list.Pagination, err = c.client.List(ctx, getClustersPath(), cursor, &list.Items)
 	return
 }
 
@@ -37,7 +37,7 @@ type ClusterWorkerCreateReq struct {
 }
 
 func (c ClusterService) Create(ctx context.Context, req ClusterCreateReq) (order common.Ordering, err error) {
-	err = c.client.Create(ctx, getClusterPath(), req, &order)
+	err = c.client.Create(ctx, getClustersPath(), req, &order)
 	return
 }
 
@@ -135,33 +135,33 @@ func (c ClusterService) Perform(ctx context.Context, req ClusterPerformActionReq
 }
 
 const (
-	clusterSegment              = "/v4/kubernetes/clusters"
+	clustersSegment             = "/v4/kubernetes/clusters"
 	clusterKubeConfigSegment    = "kube-config"
 	clusterConfigurationSegment = "configuration"
 	clusterFlavorSegment        = "flavor"
 	clusterActionSegment        = "action"
 )
 
-func getClusterPath() string {
-	return clusterSegment
+func getClustersPath() string {
+	return clustersSegment
 }
 
 func getSpecificClusterPath(id uint) string {
-	return core.Join(clusterSegment, id)
+	return core.Join(clustersSegment, id)
 }
 
 func getClusterKubeConfigPath(id uint) string {
-	return core.Join(clusterSegment, id, clusterKubeConfigSegment)
+	return core.Join(clustersSegment, id, clusterKubeConfigSegment)
 }
 
 func getClusterConfigurationPath(id uint) string {
-	return core.Join(clusterSegment, id, clusterConfigurationSegment)
+	return core.Join(clustersSegment, id, clusterConfigurationSegment)
 }
 
 func getClusterFlavorPath(id uint) string {
-	return core.Join(clusterSegment, id, clusterFlavorSegment)
+	return core.Join(clustersSegment, id, clusterFlavorSegment)
 }
 
 func getClusterActionPath(id uint) string {
-	return core.Join(clusterSegment, id, clusterActionSegment)
+	return core.Join(clustersSegment, id, clusterActionSegment)
 }

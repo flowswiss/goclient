@@ -45,7 +45,7 @@ type QuotaGetReq struct {
 	Scope string `json:"-"`
 }
 
-func (q QuotaService) Get(ctx context.Context, req QuotaGetReq) (quotas []Quota, err error) {
+func (q QuotaService) Get(ctx context.Context, req QuotaGetReq) (quotas Quota, err error) {
 	query := url.Values{
 		"scope": []string{req.Scope},
 	}
